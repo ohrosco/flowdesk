@@ -1,0 +1,129 @@
+Add inbound voice calling to the FlowDesk Next.js project at C:\Users\JOEL\flowdesk.
+
+Current project has: Twilio SMS integration, Supabase, Resend email, Claude API. All are working via lib/twilio.js, lib/supabase.js, lib/resend.js, and various API routes.
+
+## What to Build
+
+Twilio Voice integration for inbound calls with:
+1. Menu-driven IVR (press 1/2/3)
+2. Emergency call routing
+3. Lead capture via DTMF (keypad) input
+4. SMS notifications to business owner
+5. After-hours handling
+
+## Files to Create
+
+### 1. app/api/voice/incoming/route.js
+TwiML response for incoming calls.
+
+Flow:
+- Check current time against business hours (default 8AM-6PM Mon-Fri, configurable via env vars BUSINESS_OPEN_HOUR and BUSINESS_CLOSE_HOUR, or use defaults)
+- If after hours: Play "Thanks for calling [Business]. We're currently closed. For emergencies press 1. For a callback during business hours press 2."
+  - <Gather numDigits=1 action="https://[domain]/api/voice/menu" timeout=10>
+  - Emergency (1): Redirect to /api/voice/menu?Digits=1&source=afterhours
+  - Callback (2): <Say> leave message after beep, <Record> then <Say> goodbye
+- If business hours: Play "Thanks for calling [Business]!"
+  - <Gather numDigits=1 action="https://[domain]/api/voice/menu" timeout=5>
+  - Press 1 for emergency service
+  - Press 2 for a free estimate or service quote
+  - Press 3 for business hours and location
+
+Business name from env var: NEXT_PUBLIC_BUSINESS_NAME (default "FlowDesk")
+
+Use Twilio Voice TwiML helpers via twilio library (already installed). Import twilio and use twilio.twiml.VoiceResponse().
+
+### 2. app/api/voice/menu/route.js
+Handles DTMF keypress from the <Gather> menu.
+
+Import twilio.twiml.VoiceResponse.
+
+Logic:
+- Get Digits from query params (or body)
+- Digits = "1" (Emergency):
+  - If environment variable EMERGENCY_PHONE is set:
+    - <Dial> the emergency phone number
+    - After Dial completes, hit /api/voice/emergency-sms endpoint via fetch to send SMS alert
+    - The SMS should go to EMERGENCY_PHONE with message: "🚨 EMERGENCY CALL from [caller number] at [timestamp]"
+  - If EMERGENCY_PHONE is NOT set:
+    - <Say> "Connecting you to emergency dispatch" then <Hangup>
+  - Use caller's number from req.body.Caller or req.query.Caller
+
+- Digits = "2" (New Estimate):
+  - <Say> "Let's get you scheduled. Please enter your 5-digit zip code using your keypad."
+  - <Gather numDigits=5 action="https://[domain]/api/voice/lead-capture" timeout=10>
+  - Pass the Digits ("2") as a query param so lead-capture knows it came from new-estimate flow
+
+- Digits = "3" (Business Info):
+  - <Say> "Our business hours are [hours from env BUSINESS_HOURS_TEXT or default: Monday through Friday, 8 AM to 6 PM]. We're located at [address from env BUSINESS_ADDRESS or default not set]. You can also book online at our website. We'll text you a link now."
+  - Call fetch() to /api/voice/send-info-sms?phone=[caller number] to send an SMS with booking link
+  - <Say> "Thanks for calling! Goodbye." then <Hangup>
+
+- Default (invalid key): <Say> "Sorry, I didn't understand that." then <Redirect> back to incoming
+
+### 3. app/api/voice/lead-capture/route.js
+Captures lead info entered via DTMF and creates a lead.
+
+- Get ZipCode from the <Gather> Digits
+- Get caller phone from req.body.Caller or query param
+- Generate a lead ID and store it temporarily (in-memory or a "staging" concept)
+- <Say> "Thanks! What's your first name? Enter the letters on your keypad. Press 1 for A B C, 2 for D E F, etc. Press star when done."
+- Actually, multi-tap is too complex for DTMF. Instead:
+  - <Say> "We'll send you a text to collect the rest of your information. Please watch for a message from us shortly."
+  - Call /api/voice/send-sms?phone=[caller]&text=[message] via internal fetch to send an SMS:
+    "Thanks for calling [Business]! Reply with your name and what service you need and we'll get you scheduled."
+  - Create a lead in Supabase with phone, zip_code, source="phone", status="new"
+  - Return TwiML: <Say> "You'll receive a text shortly. Thanks for calling!" <Hangup>
+
+### 4. app/api/voice/emergency-sms/route.js
+Internal webhook (can be called from menu.js or from anywhere via fetch).
+- POST handler
+- Expects: phone (string), callerNumber (string)
+- Uses Twilio from lib/twilio.js to send SMS to the phone number with emergency details
+- Returns success/error JSON
+
+### 5. app/api/voice/send-info-sms/route.js
+Internal endpoint to send SMS with booking info.
+- GET handler
+- Expects phone query param
+- Sends SMS via Twilio: "Thanks for calling [Business]! Book online at [booking URL from env BOOKING_URL or "our website"]. Reply anytime."
+- Returns success/error JSON
+
+### 6. app/api/voice/send-sms/route.js
+Generic internal SMS sender.
+- GET handler
+- Expects phone and text query params
+- Sends SMS via Twilio
+- Returns success/error JSON
+
+## Changes to Existing Files
+
+### 7. Update .env.local to add new env vars
+Add to .env.local:
+```
+# ── TWILIO VOICE ──────────────────────────────────────────────────────────
+EMERGENCY_PHONE=+15551234567
+BUSINESS_OPEN_HOUR=8
+BUSINESS_CLOSE_HOUR=18
+BUSINESS_TIMEZONE=America/New_York
+BUSINESS_HOURS_TEXT=Monday through Friday, 8 AM to 6 PM
+BUSINESS_ADDRESS=
+BOOKING_URL=https://yourdomain.com/book
+```
+
+### 8. Update .env.example similarly
+Add same vars as documented examples.
+
+### 9. Update lib/twilio.js
+Add helper functions:
+- sendSms(phone, message) — reusable SMS send function (wrap existing Twilio logic)
+- getVoiceClient() — returns twilio client for VoiceResponse
+
+## Style Rules
+- All TwiML uses twilio.twiml.VoiceResponse (not raw XML strings)
+- All endpoints return proper TwiML XML responses (Content-Type: text/xml)
+- Wrapped in try/except with fallback TwiML on errors
+- Domain placeholder uses process.env.NEXT_PUBLIC_APP_URL or fallback "https://your-domain.vercel.app"
+- Type-check all env vars, provide sensible defaults
+- Use const/let appropriately (no var)
+
+Build the complete feature. Create every file listed.
