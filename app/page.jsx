@@ -143,6 +143,7 @@ export default function Landing() {
           <a href="#features">Features</a>
           <a href="#pricing">Pricing</a>
           <a href="#faq">FAQ</a>
+          <a href="/book">Book Now</a>
           <a className="btn btn-g btn-s" style={{padding:"8px 18px"}} href="/dashboard">Dashboard →</a>
         </div>
         <div style={{display:"flex",gap:12,alignItems:"center"}}>
