@@ -1,0 +1,26 @@
+{
+  "name": "FlowDesk — Lead Engine",
+  "short_name": "FlowDesk",
+  "description": "Website + AI phone system for local service businesses. Book appointments, capture leads, never miss a call.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0A0A07",
+  "theme_color": "#F0B429",
+  "orientation": "any",
+  "scope": "/",
+  "categories": ["business", "productivity"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

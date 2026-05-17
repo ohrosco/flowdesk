@@ -1,14 +1,47 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "FlowDesk — Lead Capture & Scheduling",
-  description: "Automated lead follow-up and appointment scheduling for small businesses",
+  title: "FlowDesk — Lead Engine",
+  description: "Website + AI phone system for local service businesses. Book appointments, capture leads, never miss a call.",
+  manifest: "/manifest.json",
+  icons: {
+    icon: "/icons/icon-192.svg",
+    apple: "/icons/icon-512.svg",
+  },
+  appleWebApp: {
+    capable: true,
+    title: "FlowDesk",
+    statusBarStyle: "black-translucent",
+  },
+  other: {
+    "mobile-web-app-capable": "yes",
+  },
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <head>
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="FlowDesk" />
+        <meta name="theme-color" content="#F0B429" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+      </head>
+      <body>
+        <script dangerouslySetInnerHTML={{
+          __html: `
+            if ("serviceWorker" in navigator) {
+              window.addEventListener("load", () => {
+                navigator.serviceWorker.register("/sw.js").catch(() => {});
+              });
+            }
+          `
+        }} />
+        {children}
+      </body>
     </html>
   );
 }
