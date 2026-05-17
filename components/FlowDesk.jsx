@@ -135,6 +135,38 @@ const SEQ = [
 
 function ini(n){return(n||"?").split(" ").map(w=>w[0]).join("").slice(0,2).toUpperCase()}
 
+function parsePipeline(lead){
+  try{return JSON.parse(lead.notes||"{}")}catch{return{}}
+}
+
+const PIPELINE_STAGES=["Contacted","Demo Booked","Demo Done","Proposal Sent","Negotiating","Signed","Lost","Cold"];
+const STAGE_COLORS={"Contacted":T.blue,"Demo Booked":T.gold,"Demo Done":T.goldDim,"Proposal Sent":"#A78BFA","Negotiating":"#F97316","Signed":T.green,"Lost":T.red,"Cold":T.muted};
+
+const CALL_SCRIPT=[
+  {phase:1,title:"OPEN",time:"0–2 min",icon:"👋",color:T.blue,desc:"Build rapport, set agenda",lines:[
+    "Hi, is this [Name]? Hey [Name], this is [Your Name] — I'm calling because you reached out about [Service/Pain Point]. Did I catch you at an okay time?",
+    "Great. I've got about 20 minutes blocked. I'd love to learn a bit about your situation, then if it makes sense, show you a quick demo of how we've helped businesses like yours. Sound fair?",
+  ]},
+  {phase:2,title:"QUALIFY",time:"2–7 min",icon:"🔍",color:T.gold,desc:"Find the pain — 4 key questions",lines:[
+    "Q1: Walk me through how you're currently handling [problem area]. What does that process look like today?",
+    "Q2: What's the biggest headache with the way you're doing it now? What's it actually costing you — time, money, customers?",
+    "Q3: Have you tried solving this before? What happened?",
+    "Q4: If we could solve this completely — what would that mean for your business in the next 90 days?",
+  ]},
+  {phase:3,title:"DEMO",time:"7–15 min",icon:"💻",color:"#A78BFA",desc:"Show live — make it about them",lines:[
+    "Okay, based on what you told me — the [specific pain] — let me show you exactly how FlowDesk handles that.",
+    "* Screen share / live walkthrough *",
+    "What you're seeing is [feature] — this is what handles the [pain]. Notice how [outcome]. For your business, this means [their specific win].",
+    "Does this solve the [pain point] you mentioned?",
+  ]},
+  {phase:4,title:"CLOSE",time:"15–20 min",icon:"🤝",color:T.green,desc:"Trial close → decision",lines:[
+    "So based on everything — [summarize their pain + what you showed] — does this feel like the right fit?",
+    "Here's what I'd recommend: let's get you started. It's [price] and you'll have [key feature] live within [timeframe]. I can walk you through setup right now — takes 10 minutes.",
+    "What's your preferred way to get started — card, ACH, or invoice?",
+    "[If hesitation]: What's the one thing that's making you pause?",
+  ]},
+];
+
 // ─── TOAST ────────────────────────────────────────────────────────────────────
 function Toast({msg,type="ok",onDone}){
   useEffect(()=>{const t=setTimeout(onDone,3500);return()=>clearTimeout(t)},[]);
@@ -450,6 +482,128 @@ function FollowUpView({leads}){
   );
 }
 
+// ─── SALES PIPELINE ───────────────────────────────────────────────────────────
+function SalesPipelineView({leads,appts}){
+  const leadsWithP=leads.map(l=>({...l,pipeline:parsePipeline(l)}));
+  const totalMRR=leadsWithP.reduce((sum,l)=>sum+(Number(l.pipeline.mrr)||0),0);
+  const demosBooked=leadsWithP.filter(l=>l.pipeline.pipeline_stage==="Demo Booked").length;
+  const signed=leadsWithP.filter(l=>l.pipeline.pipeline_stage==="Signed").length;
+  function stageLeads(stage){return leadsWithP.filter(l=>(l.pipeline.pipeline_stage||"Contacted")===stage)}
+
+  return(
+    <div className="z1">
+      <div className="section-hd">📊 Sales Pipeline</div>
+      <div className="stats mb20">
+        {[
+          {n:leads.length,       l:"Total Leads",    c:T.gold,  d:"All stages"},
+          {n:demosBooked,        l:"Demos Booked",   c:T.blue,  d:"Pipeline stage"},
+          {n:`$${totalMRR.toLocaleString()}`,l:"MRR Pipeline",c:T.green,d:"Projected monthly"},
+          {n:`${signed}/5`,      l:"Goal: 5 Clients",c:signed>=5?T.green:T.gold,d:signed>=5?"Goal reached!":"Keep closing"},
+        ].map((s,i)=>(
+          <div key={i} className="stat" style={{"--c":s.c}}>
+            <div className="stat-n">{s.n}</div>
+            <div className="stat-l">{s.l}</div>
+            <div className="stat-d">{s.d}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{overflowX:"auto",paddingBottom:16}}>
+        <div style={{display:"flex",gap:12,minWidth:"max-content"}}>
+          {PIPELINE_STAGES.map(stage=>{
+            const sl=stageLeads(stage);
+            const col=STAGE_COLORS[stage]||T.muted;
+            return(
+              <div key={stage} style={{width:190,flexShrink:0}}>
+                <div style={{background:T.card,border:`1px solid ${T.border}`,borderTop:`3px solid ${col}`,borderRadius:12,padding:"10px 12px",marginBottom:8,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                  <div style={{fontSize:"0.78rem",fontWeight:600,color:col}}>{stage}</div>
+                  <div style={{background:`${col}22`,border:`1px solid ${col}44`,borderRadius:"50%",width:22,height:22,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.7rem",fontWeight:700,color:col}}>{sl.length}</div>
+                </div>
+                <div style={{display:"flex",flexDirection:"column",gap:8}}>
+                  {sl.map(l=>{
+                    const p=l.pipeline;
+                    return(
+                      <div key={l.id}
+                        style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:10,padding:"12px 13px",transition:"border-color .15s"}}
+                        onMouseEnter={e=>e.currentTarget.style.borderColor=T.borderHover}
+                        onMouseLeave={e=>e.currentTarget.style.borderColor=T.border}
+                      >
+                        <div style={{fontSize:"0.82rem",fontWeight:600,marginBottom:2,color:T.text}}>{p.business_name||l.name}</div>
+                        {p.owner_name&&<div style={{fontSize:"0.71rem",color:T.muted,marginBottom:4}}>{p.owner_name}</div>}
+                        <div style={{display:"flex",flexWrap:"wrap",gap:4,marginBottom:p.mrr?6:0}}>
+                          {p.tier&&<span style={{fontSize:"0.64rem",background:`${T.gold}15`,border:`1px solid ${T.gold}30`,borderRadius:20,padding:"2px 7px",color:T.gold}}>{p.tier}</span>}
+                          {p.source&&<span style={{fontSize:"0.64rem",background:`${T.blue}12`,border:`1px solid ${T.blue}25`,borderRadius:20,padding:"2px 7px",color:T.blue}}>{p.source}</span>}
+                        </div>
+                        {p.mrr&&<div style={{fontSize:"0.74rem",fontWeight:600,color:T.green}}>${Number(p.mrr).toLocaleString()}/mo</div>}
+                        {l.phone&&<div style={{fontSize:"0.69rem",color:T.muted,marginTop:2}}>{l.phone}</div>}
+                      </div>
+                    );
+                  })}
+                  {sl.length===0&&<div style={{border:`1px dashed ${T.border}`,borderRadius:10,padding:"16px 12px",textAlign:"center",fontSize:"0.71rem",color:T.muted}}>Empty</div>}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── SCRIPT ───────────────────────────────────────────────────────────────────
+function ScriptView(){
+  const [expanded,setExpanded]=useState({0:true,1:true,2:true,3:true});
+  function toggle(i){setExpanded(p=>({...p,[i]:!p[i]}))}
+
+  return(
+    <div className="z1">
+      <div className="section-hd">📋 Demo Call Script</div>
+      <div style={{maxWidth:720,margin:"0 auto"}}>
+        <div className="card-sm mb16" style={{background:T.surface,borderColor:T.gold}}>
+          <div style={{fontSize:"0.8rem",color:T.muted,lineHeight:1.65}}>
+            <strong style={{color:T.gold}}>Total time: 20 min</strong> · This script is a guide, not a prison. Listen actively, adapt to their answers, and prioritize their words over yours.
+          </div>
+        </div>
+        {CALL_SCRIPT.map((phase,i)=>(
+          <div key={i} className="card mb12" style={{borderTop:`3px solid ${phase.color}`}}>
+            <div className="flex aic jcb" style={{cursor:"pointer",userSelect:"none"}} onClick={()=>toggle(i)}>
+              <div className="flex aic gap8">
+                <span style={{fontSize:"1.3rem"}}>{phase.icon}</span>
+                <div>
+                  <div style={{fontSize:"0.7rem",fontWeight:600,color:phase.color,textTransform:"uppercase",letterSpacing:"0.1em"}}>Phase {phase.phase} · {phase.time}</div>
+                  <div style={{fontFamily:"'Playfair Display',serif",fontSize:"0.95rem",fontWeight:700}}>{phase.title} — {phase.desc}</div>
+                </div>
+              </div>
+              <div style={{color:T.muted,fontSize:"0.75rem"}}>{expanded[i]?"▲":"▼"}</div>
+            </div>
+            {expanded[i]&&(
+              <div style={{marginTop:14,display:"flex",flexDirection:"column",gap:9}}>
+                {phase.lines.map((line,j)=>(
+                  <div key={j} style={{
+                    background:T.surface,border:`1px solid ${T.border}`,
+                    borderLeft:`3px solid ${phase.color}55`,borderRadius:"0 8px 8px 0",
+                    padding:"10px 14px",fontSize:"0.83rem",lineHeight:1.65,
+                    color:line.startsWith("*")?T.muted:T.text,
+                    fontStyle:line.startsWith("*")?"italic":"normal",
+                  }}>
+                    {line.startsWith("Q")&&<strong style={{color:phase.color}}>{line.slice(0,2)}</strong>}
+                    {line.startsWith("Q")?line.slice(2):line}
+                  </div>
+                ))}
+                <button className="btn btn-o btn-s" style={{fontSize:"0.72rem",alignSelf:"flex-start",marginTop:2}} onClick={()=>navigator.clipboard?.writeText(phase.lines.join("\n\n"))}>
+                  📋 Copy Phase
+                </button>
+              </div>
+            )}
+          </div>
+        ))}
+        <button className="btn btn-g" style={{width:"100%",marginTop:4}} onClick={()=>navigator.clipboard?.writeText(CALL_SCRIPT.map(p=>`=== ${p.title} (${p.time}) ===\n${p.lines.join("\n\n")}`).join("\n\n"))}>
+          📋 Copy Full Script
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ─── SCHEDULE ─────────────────────────────────────────────────────────────────
 function ScheduleView({leads,appts,setAppts}){
   const [selDay,setSelDay]=useState(null);
@@ -614,10 +768,12 @@ export default function FlowDesk(){
   },[]);
 
   const TABS=[
-    {id:"dash",   label:"Dashboard",    icon:"◈"},
-    {id:"leads",  label:"Lead Capture", icon:"📋"},
-    {id:"fu",     label:"Follow-Up",    icon:"⚡"},
-    {id:"sched",  label:"Schedule",     icon:"📅"},
+    {id:"dash",     label:"Dashboard",    icon:"◈"},
+    {id:"leads",    label:"Lead Capture", icon:"📋"},
+    {id:"fu",       label:"Follow-Up",    icon:"⚡"},
+    {id:"pipeline", label:"Pipeline",     icon:"📊"},
+    {id:"script",   label:"Script",       icon:"📋"},
+    {id:"sched",    label:"Schedule",     icon:"📅"},
   ];
 
   return(
@@ -649,10 +805,12 @@ export default function FlowDesk(){
             </div>
           ):(
             <>
-              {tab==="dash"  &&<Dashboard leads={leads} appts={appts} onTab={setTab}/>}
-              {tab==="leads" &&<LeadsView leads={leads} setLeads={setLeads} setAiLead={setAiLead}/>}
-              {tab==="fu"    &&<FollowUpView leads={leads}/>}
-              {tab==="sched" &&<ScheduleView leads={leads} appts={appts} setAppts={setAppts}/>}
+              {tab==="dash"     &&<Dashboard leads={leads} appts={appts} onTab={setTab}/>}
+              {tab==="leads"    &&<LeadsView leads={leads} setLeads={setLeads} setAiLead={setAiLead}/>}
+              {tab==="fu"       &&<FollowUpView leads={leads}/>}
+              {tab==="pipeline" &&<SalesPipelineView leads={leads} appts={appts}/>}
+              {tab==="script"   &&<ScriptView/>}
+              {tab==="sched"    &&<ScheduleView leads={leads} appts={appts} setAppts={setAppts}/>}
             </>
           )}
         </div>

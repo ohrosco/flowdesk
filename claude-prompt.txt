@@ -1,0 +1,40 @@
+I need to add a Sales Pipeline tab to the FlowDesk dashboard in /c/Users/JOEL/flowdesk/components/FlowDesk.jsx
+
+The file has navigation tabs at the top. Currently: Dashboard, Leads, Follow-Up, Schedule. 
+The tab state is managed by a `tab` state in the main component. The tabs are rendered as buttons in a nav div.
+Each tab switches to a different view via conditional rendering.
+
+Here's what I need added:
+
+1. A new tab button labeled "📊 Pipeline" in the nav section (between "Follow-Up" and "Schedule")
+
+2. A new conditional rendering branch: `{tab==="pipeline"&&<SalesPipelineView leads={leads} appts={appts} />}`
+
+3. A new component `SalesPipelineView` that:
+   - Parses pipeline data from each lead's `notes` field (it's stored as JSON string)
+   - Shows a pipeline kanban board with these stages: Contacted, Demo Booked, Demo Done, Proposal Sent, Negotiating, Signed, Lost, Cold
+   - Each stage column shows: stage name, count of leads, and each lead's card
+   - Each lead card shows: business name, owner name, tier, MRR, source, phone
+   - Top stats: Total Leads, Demos Booked (from pipeline_stage), MRR Pipeline (sum of all mrr), Goal: 5 clients
+   
+4. Helper function to parse pipeline data from notes:
+```
+function parsePipeline(lead) {
+  try { return JSON.parse(lead.notes || '{}'); }
+  catch { return {}; }
+}
+```
+
+5. A "Script" tab that loads and displays the demo call script. Add a "📋 Script" tab button too.
+
+6. A `ScriptView` component that shows the call script:
+   - Phase 1: OPEN (0-2 min) — Build rapport, set agenda
+   - Phase 2: QUALIFY (2-7 min) — Find the pain questions (Q1-Q4)
+   - Phase 3: DEMO (7-15 min) — Show live
+   - Phase 4: CLOSE (15-20 min) — Trial close
+   
+   Store the script inline in the component as a structured array.
+
+The styling should match the existing dark theme with gold accents from the theme object `T`.
+
+Make the changes directly. Keep all existing code intact.
