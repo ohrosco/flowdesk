@@ -5,6 +5,8 @@ import { sendEmail, getFollowUpEmail } from "@/lib/resend";
 
 // ─── GET /api/followup ────────────────────────────────────────────────────────
 // Returns all follow-up messages for a lead
+export const dynamic = 'force-dynamic';
+
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
   const leadId = searchParams.get("lead_id");

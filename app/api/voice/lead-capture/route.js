@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import twilio from "twilio";
 
 const VoiceResponse = twilio.twiml.VoiceResponse;
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://your-domain.vercel.app";
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://flowdesk-ruby.vercel.app";
 
 // ─── POST /api/voice/lead-capture ──────────────────────────────────────
 // Handles zip code entry from <Gather> and creates a lead

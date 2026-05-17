@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import twilio from "twilio";
 
 const VoiceResponse = twilio.twiml.VoiceResponse;
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://your-domain.vercel.app";
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://flowdesk-ruby.vercel.app";
 
 // ─── POST /api/voice/menu ──────────────────────────────────────────────
 // Handles DTMF keypress from the IVR menu

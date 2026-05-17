@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 
 // Called hourly by Vercel Cron (see vercel.json)
 // Triggers the followup processor
+export const dynamic = 'force-dynamic';
+
 export async function GET(req) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
