@@ -770,10 +770,8 @@ export default function FlowDesk(){
   const TABS=[
     {id:"dash",     label:"Dashboard",    icon:"◈"},
     {id:"leads",    label:"Lead Capture", icon:"📋"},
-    {id:"fu",       label:"Follow-Up",    icon:"⚡"},
-    {id:"pipeline", label:"Pipeline",     icon:"📊"},
-    {id:"script",   label:"Script",       icon:"📋"},
-    {id:"sched",    label:"Schedule",     icon:"📅"},
+    {id:"fu",     label:"Follow-Up", icon:"⚡"},
+    {id:"sched",  label:"Schedule",  icon:"📅"},
   ];
 
   return(
@@ -784,6 +782,7 @@ export default function FlowDesk(){
         <div className="hdr z1">
           <div className="logo">FlowDesk<sub>Lead & Schedule System</sub></div>
           <div className="flex aic gap12">
+            <a href="/outreach" className="btn btn-o btn-s" style={{fontSize:"0.7rem",textDecoration:"none"}}>📞 Outreach</a>
             <div style={{textAlign:"right"}}>
               <div className="hdr-stat-num">{leads.length}</div>
               <div className="hdr-stat-lbl">Active Leads</div>
@@ -808,8 +807,6 @@ export default function FlowDesk(){
               {tab==="dash"     &&<Dashboard leads={leads} appts={appts} onTab={setTab}/>}
               {tab==="leads"    &&<LeadsView leads={leads} setLeads={setLeads} setAiLead={setAiLead}/>}
               {tab==="fu"       &&<FollowUpView leads={leads}/>}
-              {tab==="pipeline" &&<SalesPipelineView leads={leads} appts={appts}/>}
-              {tab==="script"   &&<ScriptView/>}
               {tab==="sched"    &&<ScheduleView leads={leads} appts={appts} setAppts={setAppts}/>}
             </>
           )}
