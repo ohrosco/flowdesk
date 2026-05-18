@@ -34,6 +34,7 @@ create table if not exists appointments (
   reminder_24h boolean default true,
   reminder_2h  boolean default true,
   status       text default 'confirmed',  -- confirmed | cancelled | completed
+  google_calendar_event_id text,
   created_at   timestamptz default now()
 );
 
