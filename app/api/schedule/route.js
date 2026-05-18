@@ -4,6 +4,8 @@ import { sendSMS } from "@/lib/twilio";
 import { sendAppointmentConfirmation } from "@/lib/resend";
 import { createCalendarEvent, updateCalendarEvent, deleteCalendarEvent } from "@/lib/google-calendar";
 
+const DEFAULT_TENANT = process.env.NEXT_PUBLIC_BUSINESS_NAME || "FlowDesk";
+
 // ─── GET /api/schedule ────────────────────────────────────────────────────────
 export async function GET(req) {
   const db = supabaseAdmin();
@@ -21,22 +23,23 @@ export async function GET(req) {
 // ─── POST /api/schedule ───────────────────────────────────────────────────────
 export async function POST(req) {
   const body = await req.json();
-  const { id, lead_id, lead_name, lead_phone, lead_email, appt_type, appt_date, appt_time, notes, reminder_24h, reminder_2h, action } = body;
+  const { id, lead_id, lead_name, lead_phone, lead_email, appt_type, appt_date, appt_time, notes, reminder_24h, reminder_2h, action, tenant } = body;
 
+  const tenantName = tenant || DEFAULT_TENANT;
   const db = supabaseAdmin();
 
-  // ── CANCEL / DELETE ────────────────────────────────
+  // ── CANCEL ──────────────────────────────────────────
   if (action === "cancel" && id) {
     const { data: existing } = await db.from("appointments").select("google_calendar_event_id").eq("id", id).single();
     if (existing?.google_calendar_event_id) {
-      await deleteCalendarEvent(existing.google_calendar_event_id);
+      await deleteCalendarEvent(tenantName, existing.google_calendar_event_id);
     }
     const { error } = await db.from("appointments").update({ status: "cancelled" }).eq("id", id);
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json({ ok: true, status: "cancelled" });
   }
 
-  // ── UPDATE reschedule ──────────────────────────────
+  // ── RESCHEDULE ───────────────────────────────────────
   if (action === "reschedule" && id) {
     if (!appt_date || !appt_time) {
       return NextResponse.json({ error: "appt_date and appt_time required for reschedule" }, { status: 400 });
@@ -50,9 +53,8 @@ export async function POST(req) {
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-    // Update Google Calendar event
     if (existing.google_calendar_event_id) {
-      await updateCalendarEvent(existing.google_calendar_event_id, {
+      await updateCalendarEvent(tenantName, existing.google_calendar_event_id, {
         ...existing, appt_date, appt_time, notes,
       });
     }
@@ -60,12 +62,11 @@ export async function POST(req) {
     return NextResponse.json({ ok: true, status: "rescheduled" });
   }
 
-  // ── CREATE ─────────────────────────────────────────
+  // ── CREATE ───────────────────────────────────────────
   if (!lead_name || !lead_phone || !appt_date || !appt_time) {
     return NextResponse.json({ error: "lead_name, lead_phone, appt_date, and appt_time are required" }, { status: 400 });
   }
 
-  // Insert appointment
   const { data: appt, error } = await db
     .from("appointments")
     .insert({
@@ -80,31 +81,29 @@ export async function POST(req) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  // Update lead stage
   if (lead_id) {
     await db.from("leads").update({ stage: "Estimate Scheduled", status: "hot" }).eq("id", lead_id);
   }
 
-  // Fire confirmation SMS
+  // SMS
   const smsBody = `Hi ${lead_name.split(" ")[0]}! Your ${appt_type || "estimate"} is confirmed for ${appt_date} at ${appt_time}. Reply STOP to opt out.`;
   if (process.env.TWILIO_ACCOUNT_SID) {
     try { await sendSMS(lead_phone, smsBody); } catch (e) { console.error("SMS failed:", e.message); }
   }
 
-  // Fire confirmation email
+  // Email
   if (lead_email && process.env.RESEND_API_KEY) {
     try { await sendAppointmentConfirmation({ ...appt, email: lead_email }); } catch (e) { console.error("Email failed:", e.message); }
   }
 
-  // Create Google Calendar event
+  // Google Calendar (tenant-aware)
   let gcalEventId = null;
   try {
-    gcalEventId = await createCalendarEvent(appt);
+    gcalEventId = await createCalendarEvent(tenantName, appt);
   } catch (e) {
     console.error("Google Calendar event creation failed (non-fatal):", e.message);
   }
 
-  // Store Google Calendar event ID if created
   if (gcalEventId) {
     await db.from("appointments").update({ google_calendar_event_id: gcalEventId }).eq("id", appt.id);
     appt.google_calendar_event_id = gcalEventId;
@@ -117,14 +116,15 @@ export async function POST(req) {
 export async function DELETE(req) {
   const { searchParams } = new URL(req.url);
   const id = searchParams.get("id");
+  const tenant = searchParams.get("tenant");
   if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });
 
+  const tenantName = tenant || DEFAULT_TENANT;
   const db = supabaseAdmin();
 
-  // Fetch event ID before deleting
   const { data: existing } = await db.from("appointments").select("google_calendar_event_id").eq("id", id).single();
   if (existing?.google_calendar_event_id) {
-    await deleteCalendarEvent(existing.google_calendar_event_id);
+    await deleteCalendarEvent(tenantName, existing.google_calendar_event_id);
   }
 
   const { error } = await db.from("appointments").delete().eq("id", id);

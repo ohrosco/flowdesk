@@ -745,6 +745,81 @@ function ScheduleView({leads,appts,setAppts}){
   );
 }
 
+// ─── SETTINGS / INTEGRATIONS ──────────────────────────────────────────────────
+function SettingsView({tenant}){
+  const [calStatus,setCalStatus]=useState(null);
+  const [loading,setLoading]=useState(true);
+
+  useEffect(()=>{
+    fetch(`/api/calendar/status?tenant=${encodeURIComponent(tenant)}`)
+      .then(r=>r.json())
+      .then(d=>{setCalStatus(d);setLoading(false)})
+      .catch(()=>setLoading(false));
+  },[tenant]);
+
+  const authUrl=`/api/calendar/auth?tenant=${encodeURIComponent(tenant)}`;
+
+  async function disconnect(){
+    if(!confirm("Disconnect Google Calendar? Bookings will no longer sync.")) return;
+    setLoading(true);
+    await fetch(`/api/calendar/status?tenant=${encodeURIComponent(tenant)}`,{method:"DELETE"});
+    setCalStatus({connected:false});
+    setLoading(false);
+  }
+
+  return(
+    <div className="z1">
+      <div className="section-hd">⚙ Settings & Integrations</div>
+
+      {/* Google Calendar */}
+      <div className="card" style={{maxWidth:600}}>
+        <div className="card-title" style={{display:"flex",alignItems:"center",gap:10}}>
+          <span style={{fontSize:"1.3rem"}}>📅</span> Google Calendar
+        </div>
+        <p style={{fontSize:"0.82rem",color:T.muted,lineHeight:1.7,marginBottom:16}}>
+          Connect your Google Calendar so appointments booked through FlowDesk automatically appear as events on your calendar. Each client connects their own calendar.
+        </p>
+        {loading ? (
+          <div style={{display:"flex",alignItems:"center",gap:8,color:T.muted,fontSize:"0.85rem",padding:"12px 0"}}>
+            <span className="spin">◌</span> Checking status…
+          </div>
+        ) : calStatus?.connected ? (
+          <div style={{background:"rgba(90,191,138,.06)",border:"1px solid rgba(90,191,138,.2)",borderRadius:10,padding:16}}>
+            <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:12}}>
+              <span style={{fontSize:"1.2rem"}}>✅</span>
+              <div>
+                <div style={{fontWeight:600,fontSize:"0.9rem",color:T.green}}>Connected</div>
+                <div style={{fontSize:"0.78rem",color:T.muted}}>{calStatus.calendarEmail}</div>
+              </div>
+            </div>
+            <button className="btn btn-o btn-s" onClick={disconnect} style={{borderColor:"rgba(224,90,90,.4)",color:T.red}}>
+              ✕ Disconnect
+            </button>
+          </div>
+        ) : (
+          <div>
+            <div style={{background:"rgba(240,180,41,.06)",border:"1px solid rgba(240,180,41,.2)",borderRadius:10,padding:16,marginBottom:16}}>
+              <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:8}}>
+                <span style={{fontSize:"1.2rem"}}>🔌</span>
+                <div>
+                  <div style={{fontWeight:600,fontSize:"0.9rem"}}>Not connected</div>
+                  <div style={{fontSize:"0.78rem",color:T.muted}}>Bookings won't appear on Google Calendar</div>
+                </div>
+              </div>
+            </div>
+            <a href={authUrl} className="btn btn-g" style={{textDecoration:"none",display:"inline-flex"}}>
+              🔗 Connect Google Calendar
+            </a>
+            <p style={{fontSize:"0.72rem",color:T.muted,marginTop:12,lineHeight:1.6}}>
+              You'll be redirected to Google to authorize access. Only <strong>calendar</strong> read/write permissions are requested. We store your refresh token securely and never access your personal data.
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ─── ROOT ─────────────────────────────────────────────────────────────────────
 export default function FlowDesk(){
   const [tab,setTab]=useState("dash");
@@ -752,6 +827,7 @@ export default function FlowDesk(){
   const [appts,setAppts]=useState([]);
   const [aiLead,setAiLead]=useState(null);
   const [loadingData,setLoadingData]=useState(true);
+  const tenant=process.env.NEXT_PUBLIC_BUSINESS_NAME||"FlowDesk";
 
   useEffect(()=>{
     async function load(){
@@ -770,8 +846,9 @@ export default function FlowDesk(){
   const TABS=[
     {id:"dash",     label:"Dashboard",    icon:"◈"},
     {id:"leads",    label:"Lead Capture", icon:"📋"},
-    {id:"fu",     label:"Follow-Up", icon:"⚡"},
-    {id:"sched",  label:"Schedule",  icon:"📅"},
+    {id:"fu",     label:"Follow-Up",    icon:"⚡"},
+    {id:"sched",  label:"Schedule",     icon:"📅"},
+    {id:"settings",label:"Settings",     icon:"⚙"},
   ];
 
   return(
@@ -808,6 +885,7 @@ export default function FlowDesk(){
               {tab==="leads"    &&<LeadsView leads={leads} setLeads={setLeads} setAiLead={setAiLead}/>}
               {tab==="fu"       &&<FollowUpView leads={leads}/>}
               {tab==="sched"    &&<ScheduleView leads={leads} appts={appts} setAppts={setAppts}/>}
+              {tab==="settings" &&<SettingsView tenant={tenant}/>}
             </>
           )}
         </div>
