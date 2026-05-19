@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ServiceStack — Lead Engine</title>
+  <style>
+    :root {
+      --bg: #F8FAFC;
+      --surface: #FFFFFF;
+      --border: #E2E8F0;
+      --text: #0F172A;
+      --muted: #64748B;
+      --primary: #2563EB;
+      --primary-lt: #EFF6FF;
+      --primary-dk: #1D4ED8;
+      --green: #16A34A;
+      --green-lt: #F0FDF4;
+      --amber: #D97706;
+      --amber-lt: #FFFBEB;
+      --red: #DC2626;
+      --red-lt: #FEF2F2;
+      --purple: #7C3AED;
+      --purple-lt: #F5F3FF;
+      --sidebar: 224px;
+      --r: 8px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); display: flex; min-height: 100vh; font-size: 14px; }
+
+    /* ── SIDEBAR ── */
+    #sidebar {
+      width: var(--sidebar); background: var(--surface); border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; z-index: 20;
+    }
+    .s-logo {
+      padding: 18px 16px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .s-logo-icon {
+      width: 34px; height: 34px; background: var(--primary); border-radius: 8px;
+      display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 15px; flex-shrink: 0;
+    }
+    .s-logo-name { font-weight: 700; font-size: 15px; }
+    .s-logo-tag { font-size: 10px; color: var(--muted); font-weight: 400; }
+    .s-nav { padding: 10px 8px; flex: 1; overflow-y: auto; }
+    .nav-section { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; padding: 12px 8px 4px; }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 6px;
+      cursor: pointer; color: var(--muted); margin-bottom: 1px; transition: all 0.12s;
+    }
+    .nav-item:hover { background: var(--bg); color: var(--text); }
+    .nav-item.active { background: var(--primary-lt); color: var(--primary); font-weight: 600; }
+    .nav-icon { font-size: 15px; width: 18px; text-align: center; }
+    .nav-badge {
+      margin-left: auto; background: var(--primary); color: #fff;
+      border-radius: 20px; padding: 1px 6px; font-size: 10px; font-weight: 700;
+    }
+    .s-footer { border-top: 1px solid var(--border); padding: 12px 12px; }
+    .biz-card { background: var(--bg); border-radius: 6px; padding: 10px 12px; }
+    .biz-name { font-weight: 600; font-size: 13px; }
+    .biz-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .biz-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--green); margin-right: 4px; }
+
+    /* ── MAIN ── */
+    #main { margin-left: var(--sidebar); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+    .topbar {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 14px 24px; display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 10;
+    }
+    .topbar-left h1 { font-size: 17px; font-weight: 700; }
+    .topbar-left p { font-size: 12px; color: var(--muted); margin-top: 1px; }
+    .topbar-right { display: flex; gap: 8px; align-items: center; }
+    .content { padding: 24px; flex: 1; }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px;
+      border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; border: none;
+      transition: all 0.12s; line-height: 1;
+    }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-dk); }
+    .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .btn-ghost:hover { background: var(--bg); }
+    .btn-sm { padding: 5px 10px; font-size: 12px; }
+    .btn-danger { background: var(--red); color: #fff; }
+    .btn-success { background: var(--green); color: #fff; }
+
+    /* ── STATS ── */
+    .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 22px; }
+    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 16px 18px; }
+    .stat-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .stat-val { font-size: 30px; font-weight: 800; margin: 6px 0 2px; line-height: 1; }
+    .stat-delta { font-size: 11px; color: var(--green); }
+    .stat-delta.down { color: var(--red); }
+    .stat-icon { float: right; font-size: 22px; opacity: 0.15; margin-top: -2px; }
+
+    /* ── CARD ── */
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); }
+    .card-header { padding: 14px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .card-title { font-size: 14px; font-weight: 700; }
+    .card-body { padding: 16px; }
+
+    /* ── TABLE ── */
+    .tbl-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; }
+    .tbl-head { padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .tbl-title { font-weight: 700; font-size: 14px; }
+    .tbl-search { padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; outline: none; width: 200px; }
+    table { width: 100%; border-collapse: collapse; }
+    th { background: var(--bg); padding: 9px 14px; text-align: left; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 14px; border-bottom: 1px solid var(--border); font-size: 13px; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #FAFBFC; }
+    .lead-name { font-weight: 600; }
+    .lead-source { font-size: 11px; color: var(--muted); }
+
+    /* ── BADGES ── */
+    .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+    .b-new      { background: var(--primary-lt); color: var(--primary); }
+    .b-contacted{ background: var(--purple-lt);  color: var(--purple); }
+    .b-estimate { background: var(--amber-lt);   color: var(--amber); }
+    .b-won      { background: var(--green-lt);   color: var(--green); }
+    .b-lost     { background: var(--red-lt);     color: var(--red); }
+    .b-phone    { background: #F0F9FF; color: #0369A1; }
+    .b-web      { background: var(--green-lt); color: var(--green); }
+    .b-sms      { background: var(--amber-lt); color: var(--amber); }
+    .b-email    { background: var(--purple-lt); color: var(--purple); }
+
+    /* ── MODAL ── */
+    .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 100; align-items: center; justify-content: center; }
+    .overlay.open { display: flex; }
+    .modal { background: var(--surface); border-radius: 12px; padding: 26px; width: 500px; max-width: 94vw; box-shadow: 0 20px 60px rgba(0,0,0,0.15); }
+    .modal-title { font-size: 17px; font-weight: 700; margin-bottom: 18px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .form-group { margin-bottom: 14px; }
+    label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 5px; }
+    input, select, textarea {
+      width: 100%; padding: 8px 11px; border: 1px solid var(--border);
+      border-radius: 6px; font-size: 13px; outline: none; transition: border-color 0.12s;
+      background: #fff; font-family: inherit;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.08); }
+    textarea { resize: vertical; min-height: 72px; }
+    .form-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; }
+
+    /* ── KANBAN ── */
+    .kanban { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
+    .k-col { background: var(--bg); border-radius: var(--r); padding: 10px; min-height: 440px; }
+    .k-col-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; padding-bottom: 8px; }
+    .k-col-title { font-size: 12px; font-weight: 700; }
+    .k-count { background: var(--border); color: var(--muted); border-radius: 20px; padding: 1px 7px; font-size: 11px; font-weight: 700; }
+    .k-bar { height: 3px; border-radius: 2px; margin-bottom: 10px; }
+    .k-card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 11px 12px; margin-bottom: 8px; cursor: pointer; transition: box-shadow 0.12s; }
+    .k-card:hover { box-shadow: 0 3px 12px rgba(0,0,0,0.1); }
+    .k-name { font-weight: 600; font-size: 13px; }
+    .k-meta { font-size: 11px; color: var(--muted); margin-top: 3px; }
+    .k-actions { display: flex; gap: 4px; margin-top: 8px; flex-wrap: wrap; }
+    .k-btn { padding: 3px 7px; border-radius: 4px; font-size: 10px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--bg); color: var(--muted); transition: all 0.1s; }
+    .k-btn:hover { background: var(--primary-lt); color: var(--primary); border-color: var(--primary); }
+
+    /* ── FOLLOW-UP TIMELINE ── */
+    .seq-row { display: flex; align-items: flex-start; gap: 0; margin-bottom: 24px; overflow-x: auto; padding-bottom: 8px; }
+    .seq-step { display: flex; flex-direction: column; align-items: center; }
+    .seq-connector { flex: 1; height: 2px; background: var(--border); margin-top: 17px; min-width: 28px; }
+    .seq-connector.done { background: var(--green); }
+    .seq-dot { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; border: 2px solid var(--border); flex-shrink: 0; }
+    .seq-dot.sent    { background: var(--green); border-color: var(--green); color: #fff; }
+    .seq-dot.pending { background: var(--primary); border-color: var(--primary); color: #fff; }
+    .seq-dot.future  { background: #fff; border-color: var(--border); color: var(--muted); }
+    .seq-label { font-size: 10px; text-align: center; color: var(--muted); margin-top: 5px; max-width: 72px; line-height: 1.3; }
+    .seq-type { font-size: 9px; text-align: center; font-weight: 700; color: var(--muted); margin-top: 2px; }
+
+    /* ── SCHEDULE ── */
+    .sched-grid { display: grid; grid-template-columns: 1fr 300px; gap: 20px; }
+    .mini-cal { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; }
+    .cal-nav { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border-bottom: 1px solid var(--border); }
+    .cal-month { font-weight: 700; font-size: 14px; }
+    .cal-chevron { background: none; border: 1px solid var(--border); border-radius: 4px; padding: 3px 8px; cursor: pointer; font-size: 14px; }
+    .cal-days { display: grid; grid-template-columns: repeat(7, 1fr); padding: 8px; gap: 2px; }
+    .cal-dh { text-align: center; font-size: 10px; font-weight: 700; color: var(--muted); padding: 4px; }
+    .cal-d { text-align: center; font-size: 12px; padding: 5px 2px; border-radius: 50%; cursor: pointer; transition: background 0.1s; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; margin: auto; }
+    .cal-d:hover { background: var(--bg); }
+    .cal-d.today { background: var(--primary); color: #fff; font-weight: 700; }
+    .cal-d.has-appt { background: var(--primary-lt); color: var(--primary); font-weight: 700; }
+    .cal-d.other { color: var(--border); cursor: default; }
+
+    /* ── IVR FLOW ── */
+    .ivr-flow { display: flex; align-items: flex-start; gap: 10px; overflow-x: auto; padding: 8px 0 16px; }
+    .ivr-node { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; min-width: 150px; max-width: 180px; flex-shrink: 0; }
+    .ivr-title { font-weight: 700; font-size: 12px; margin-bottom: 4px; }
+    .ivr-desc { font-size: 11px; color: var(--muted); line-height: 1.4; }
+    .ivr-tag { display: inline-block; margin-top: 6px; padding: 1px 6px; border-radius: 3px; font-size: 10px; font-weight: 700; }
+    .ivr-arrow { color: var(--muted); font-size: 18px; padding-top: 18px; flex-shrink: 0; }
+    .ivr-branch { display: flex; flex-direction: column; gap: 8px; }
+
+    /* ── SETTINGS ── */
+    .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .settings-section { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin: 18px 0 10px; }
+
+    /* ── TOAST ── */
+    #toast {
+      position: fixed; bottom: 22px; right: 22px; background: #1E293B; color: #fff;
+      padding: 11px 16px; border-radius: 8px; font-size: 13px; z-index: 999;
+      transform: translateY(100px); opacity: 0; transition: all 0.25s; max-width: 300px;
+    }
+    #toast.show { transform: translateY(0); opacity: 1; }
+
+    /* ── MISC ── */
+    .ai-pill { display: inline-flex; align-items: center; gap: 4px; background: linear-gradient(135deg, #6366F1, #8B5CF6); color: #fff; border-radius: 20px; padding: 2px 8px; font-size: 10px; font-weight: 700; }
+    .empty-state { text-align: center; padding: 48px 24px; color: var(--muted); }
+    .empty-icon { font-size: 36px; margin-bottom: 10px; }
+    .section-title { font-size: 14px; font-weight: 700; margin-bottom: 12px; }
+    .tag-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+    hr.divider { border: none; border-top: 1px solid var(--border); margin: 18px 0; }
+    .pill { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+    .compare-banner {
+      background: linear-gradient(135deg, #1E293B, #0F172A); color: #fff;
+      padding: 10px 18px; display: flex; align-items: center; gap: 12px; font-size: 12px;
+    }
+    .compare-banner strong { color: #F0B429; }
+    .compare-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .diff-item { padding: 10px 14px; border-radius: 6px; font-size: 12px; line-height: 1.5; }
+    .diff-them { background: #1C1A10; border: 1px solid #3D3510; color: #D4A400; }
+    .diff-us { background: var(--primary-lt); border: 1px solid #BFDBFE; color: #1D4ED8; }
+    .diff-label { font-weight: 700; font-size: 10px; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 4px; }
+  </style>
+</head>
+<body>
+
+<!-- ═══ SIDEBAR ═══ -->
+<div id="sidebar">
+  <div class="s-logo">
+    <div class="s-logo-icon">SS</div>
+    <div>
+      <div class="s-logo-name">ServiceStack</div>
+      <div class="s-logo-tag">Lead Engine v1.0</div>
+    </div>
+  </div>
+  <div class="s-nav">
+    <div class="nav-section">Core</div>
+    <div class="nav-item active" onclick="go('leads')">
+      <span class="nav-icon">👥</span> Leads
+      <span class="nav-badge" id="badge-leads">0</span>
+    </div>
+    <div class="nav-item" onclick="go('followup')">
+      <span class="nav-icon">🔁</span> Follow-Up
+      <span class="nav-badge" id="badge-fu" style="display:none">3</span>
+    </div>
+    <div class="nav-item" onclick="go('pipeline')">
+      <span class="nav-icon">📊</span> Pipeline
+    </div>
+    <div class="nav-item" onclick="go('schedule')">
+      <span class="nav-icon">📅</span> Schedule
+    </div>
+    <div class="nav-section">System</div>
+    <div class="nav-item" onclick="go('ivr')">
+      <span class="nav-icon">📞</span> Phone IVR
+    </div>
+    <div class="nav-item" onclick="go('settings')">
+      <span class="nav-icon">⚙️</span> Settings
+    </div>
+    <div class="nav-section">Meta</div>
+    <div class="nav-item" onclick="go('compare')">
+      <span class="nav-icon">⚖️</span> vs FlowDesk
+    </div>
+  </div>
+  <div class="s-footer">
+    <div class="biz-card">
+      <div class="biz-name"><span class="biz-dot"></span><span id="biz-display">Premier HVAC</span></div>
+      <div class="biz-sub">LA Metro · Active</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MAIN ═══ -->
+<div id="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1 id="page-title">Leads</h1>
+      <p id="page-sub">Capture and manage incoming service requests</p>
+    </div>
+    <div class="topbar-right">
+      <span class="ai-pill">✦ AI</span>
+      <button class="btn btn-ghost btn-sm" onclick="go('compare')">⚖️ vs FlowDesk</button>
+      <button class="btn btn-primary" id="main-action" onclick="openModal('lead')">+ Capture Lead</button>
+    </div>
+  </div>
+  <div class="content" id="content"></div>
+</div>
+
+<!-- ═══ MODAL: Capture Lead ═══ -->
+<div class="overlay" id="modal-lead">
+  <div class="modal">
+    <div class="modal-title">📋 Capture New Lead</div>
+    <div class="form-row">
+      <div class="form-group"><label>First Name</label><input id="f-fname" placeholder="Carlos" /></div>
+      <div class="form-group"><label>Last Name</label><input id="f-lname" placeholder="Rivera" /></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Phone</label><input id="f-phone" placeholder="+13105550000" /></div>
+      <div class="form-group"><label>Zip Code</label><input id="f-zip" placeholder="90210" maxlength="5" /></div>
+    </div>
+    <div class="form-group"><label>Service Needed</label>
+      <select id="f-service">
+        <option>HVAC Repair</option><option>HVAC Installation</option><option>AC Tune-Up</option>
+        <option>Furnace Repair</option><option>Duct Cleaning</option><option>Emergency Service</option><option>Other</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Source</label>
+        <select id="f-source"><option value="web">Website</option><option value="phone">Phone Call</option><option value="referral">Referral</option><option value="ad">Ad</option></select>
+      </div>
+      <div class="form-group"><label>Priority</label>
+        <select id="f-priority"><option value="normal">Normal</option><option value="high">High</option><option value="urgent">Urgent</option></select>
+      </div>
+    </div>
+    <div class="form-group"><label>Notes</label><textarea id="f-notes" placeholder="Any extra details..."></textarea></div>
+    <div class="form-actions">
+      <button class="btn btn-ghost" onclick="closeModal('lead')">Cancel</button>
+      <button class="btn btn-primary" onclick="captureLead()">Capture Lead + Fire SMS</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL: Book Appointment ═══ -->
+<div class="overlay" id="modal-appt">
+  <div class="modal">
+    <div class="modal-title">📅 Book Appointment</div>
+    <div class="form-row">
+      <div class="form-group"><label>Customer Name</label><input id="a-name" placeholder="Carlos Rivera" /></div>
+      <div class="form-group"><label>Phone</label><input id="a-phone" placeholder="+13105550000" /></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Date</label><input id="a-date" type="date" /></div>
+      <div class="form-group"><label>Time</label>
+        <select id="a-time">
+          <option>8:00 AM</option><option>9:00 AM</option><option>10:00 AM</option><option>11:00 AM</option>
+          <option>12:00 PM</option><option>1:00 PM</option><option>2:00 PM</option><option>3:00 PM</option>
+          <option>4:00 PM</option><option>5:00 PM</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group"><label>Service</label>
+      <select id="a-service">
+        <option>HVAC Repair</option><option>HVAC Installation</option><option>AC Tune-Up</option>
+        <option>Furnace Repair</option><option>Duct Cleaning</option><option>Emergency Service</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Notes</label><textarea id="a-notes" placeholder="Access instructions, contact preference..."></textarea></div>
+    <div class="form-actions">
+      <button class="btn btn-ghost" onclick="closeModal('appt')">Cancel</button>
+      <button class="btn btn-success" onclick="bookAppt()">Book + Send Confirmation SMS</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════
+const S = {
+  tab: 'leads',
+  settings: { businessName: 'Premier HVAC', phone: '+13105550099', email: 'info@premierhvac.com', timezone: 'America/Los_Angeles', openHour: 8, closeHour: 18, emergencyPhone: '+13105550001', bookingUrl: 'https://premierhvac.com/book' },
+  leads: [
+    { id:1, fname:'Carlos', lname:'Rivera', phone:'+13105551234', zip:'90210', service:'HVAC Repair', source:'phone', status:'new', priority:'high', notes:'Says unit is making grinding noise', created: ago(0.5), stage:'new', followup:[true,true,false,false,false,false] },
+    { id:2, fname:'Maria', lname:'Santos', phone:'+13235552345', zip:'90035', service:'AC Tune-Up', source:'web', status:'contacted', priority:'normal', notes:'Prefers morning appointments', created: ago(2), stage:'contacted', followup:[true,true,true,false,false,false] },
+    { id:3, fname:'James', lname:'Kim', phone:'+13105553456', zip:'90401', service:'Duct Cleaning', source:'referral', status:'estimate', priority:'normal', notes:'3-bed house, referred by neighbor', created: ago(5), stage:'estimate', followup:[true,true,true,true,false,false] },
+    { id:4, fname:'Patricia', lname:'Johnson', phone:'+13235554567', zip:'90025', service:'Emergency Service', source:'phone', status:'won', priority:'urgent', notes:'No heat overnight emergency', created: ago(8), stage:'won', followup:[true,true,true,true,true,false] },
+    { id:5, fname:'Robert', lname:'Lee', phone:'+13105555678', zip:'90067', service:'HVAC Installation', source:'ad', status:'new', priority:'normal', notes:'New construction, builder inquiry', created: ago(0.1), stage:'new', followup:[false,false,false,false,false,false] },
+    { id:6, fname:'Angela', lname:'Davis', phone:'+13235556789', zip:'90048', service:'Furnace Repair', source:'web', status:'lost', priority:'normal', notes:'Went with competitor on price', created: ago(12), stage:'lost', followup:[true,true,true,true,true,true] },
+  ],
+  appointments: [
+    { id:1, name:'Carlos Rivera', phone:'+13105551234', date:'2026-05-20', time:'10:00 AM', service:'HVAC Repair', notes:'Has dog, ring bell', confirmed: true },
+    { id:2, name:'James Kim', date:'2026-05-21', time:'9:00 AM', service:'Duct Cleaning', notes:'Side entrance', confirmed: false },
+    { id:3, name:'Maria Santos', date:'2026-05-22', time:'11:00 AM', service:'AC Tune-Up', notes:'', confirmed: true },
+  ],
+  calMonth: 4, // 0-indexed May
+  calYear: 2026,
+};
+
+function ago(days) { const d = new Date(); d.setDate(d.getDate() - days); return d.toISOString(); }
+
+// ══════════════════════════════════════════════════
+//  ROUTING
+// ══════════════════════════════════════════════════
+function go(tab) {
+  S.tab = tab;
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  const navMap = { leads:'Leads', followup:'Follow-Up', pipeline:'Pipeline', schedule:'Schedule', ivr:'Phone IVR', settings:'Settings', compare:'vs FlowDesk' };
+  const subMap = { leads:'Capture and manage incoming service requests', followup:'Automated follow-up sequences', pipeline:'Kanban pipeline — drag leads through stages', schedule:'Appointments and calendar', ivr:'Twilio Voice IVR call flow', settings:'Business configuration', compare:'Architecture and design comparison' };
+  const actionMap = { leads:'+ Capture Lead', followup:'+ New Sequence', pipeline:'+ Add Lead', schedule:'+ Book Appointment', ivr:'View Call Log', settings:'Save Settings', compare:null };
+  const actionFnMap = { leads:"openModal('lead')", followup:"toast('Sequences auto-created per lead')", pipeline:"openModal('lead')", schedule:"openModal('appt')", ivr:"toast('Call log coming soon')", settings:"saveSettings()" };
+
+  document.querySelectorAll('.nav-item').forEach(el => {
+    if (el.textContent.trim().startsWith({ leads:'👥', followup:'🔁', pipeline:'📊', schedule:'📅', ivr:'📞', settings:'⚙️', compare:'⚖️' }[tab])) el.classList.add('active');
+  });
+  // simpler active detection
+  document.querySelectorAll('.nav-item').forEach(el => {
+    const txt = el.getAttribute('onclick') || '';
+    if (txt.includes(`'${tab}'`)) el.classList.add('active');
+  });
+
+  document.getElementById('page-title').textContent = navMap[tab];
+  document.getElementById('page-sub').textContent = subMap[tab];
+  const btn = document.getElementById('main-action');
+  if (actionMap[tab]) { btn.textContent = actionMap[tab]; btn.style.display=''; btn.setAttribute('onclick', actionFnMap[tab]); }
+  else { btn.style.display='none'; }
+
+  updateBadges();
+  render();
+}
+
+// ══════════════════════════════════════════════════
+//  RENDER DISPATCH
+// ══════════════════════════════════════════════════
+function render() {
+  const el = document.getElementById('content');
+  if (S.tab === 'leads')    el.innerHTML = renderLeads();
+  if (S.tab === 'followup') el.innerHTML = renderFollowUp();
+  if (S.tab === 'pipeline') el.innerHTML = renderPipeline();
+  if (S.tab === 'schedule') el.innerHTML = renderSchedule();
+  if (S.tab === 'ivr')      el.innerHTML = renderIVR();
+  if (S.tab === 'settings') el.innerHTML = renderSettings();
+  if (S.tab === 'compare')  el.innerHTML = renderCompare();
+  if (S.tab === 'schedule') renderMiniCal();
+}
+
+// ══════════════════════════════════════════════════
+//  LEADS
+// ══════════════════════════════════════════════════
+function renderLeads() {
+  const stages = { new:'b-new', contacted:'b-contacted', estimate:'b-estimate', won:'b-won', lost:'b-lost' };
+  const srcBadge = { phone:'b-phone 📞 Phone', web:'b-web 🌐 Web', referral:'b-web 🤝 Referral', ad:'b-sms 📣 Ad' };
+  return `
+    <div class="stat-grid">
+      <div class="stat-card"><span class="stat-icon">👥</span><div class="stat-label">Total Leads</div><div class="stat-val">${S.leads.length}</div><div class="stat-delta">↑ 2 this week</div></div>
+      <div class="stat-card"><span class="stat-icon">🆕</span><div class="stat-label">New</div><div class="stat-val">${S.leads.filter(l=>l.stage==='new').length}</div><div class="stat-delta">Needs contact</div></div>
+      <div class="stat-card"><span class="stat-icon">🏆</span><div class="stat-label">Won</div><div class="stat-val">${S.leads.filter(l=>l.stage==='won').length}</div><div class="stat-delta">↑ 33% conv. rate</div></div>
+      <div class="stat-card"><span class="stat-icon">📲</span><div class="stat-label">SMS Sent Today</div><div class="stat-val">7</div><div class="stat-delta">Auto follow-ups</div></div>
+    </div>
+    <div class="tbl-wrap">
+      <div class="tbl-head">
+        <span class="tbl-title">All Leads</span>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input class="tbl-search" placeholder="🔍 Search leads..." oninput="filterLeads(this.value)" id="lead-search" />
+          <button class="btn btn-ghost btn-sm" onclick="exportLeads()">⬇ Export</button>
+        </div>
+      </div>
+      <table id="leads-table">
+        <thead><tr><th>Name</th><th>Phone</th><th>Service</th><th>Source</th><th>Stage</th><th>Priority</th><th>Created</th><th>Actions</th></tr></thead>
+        <tbody>${S.leads.map(l => `
+          <tr id="lead-row-${l.id}">
+            <td><div class="lead-name">${l.fname} ${l.lname}</div><div class="lead-source">${l.zip}</div></td>
+            <td>${l.phone}</td>
+            <td>${l.service}</td>
+            <td><span class="badge ${(srcBadge[l.source]||'b-new').split(' ')[0]}">${(srcBadge[l.source]||'Web').split(' ').slice(1).join(' ')}</span></td>
+            <td><span class="badge ${stages[l.stage]||'b-new'}">${l.stage.charAt(0).toUpperCase()+l.stage.slice(1)}</span></td>
+            <td><span style="font-size:11px;font-weight:600;color:${l.priority==='urgent'?'var(--red)':l.priority==='high'?'var(--amber)':'var(--muted)'}">${l.priority}</span></td>
+            <td style="color:var(--muted);font-size:12px">${timeAgo(l.created)}</td>
+            <td>
+              <div style="display:flex;gap:4px">
+                <button class="btn btn-ghost btn-sm" onclick="advanceStage(${l.id})">→ Move</button>
+                <button class="btn btn-ghost btn-sm" onclick="toast('📲 SMS sent to ${l.fname}!')">SMS</button>
+                <button class="btn btn-ghost btn-sm" onclick="toast('✦ Drafting AI follow-up...')">AI Draft</button>
+              </div>
+            </td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+function filterLeads(q) {
+  document.querySelectorAll('[id^="lead-row-"]').forEach(row => {
+    row.style.display = row.textContent.toLowerCase().includes(q.toLowerCase()) ? '' : 'none';
+  });
+}
+
+function advanceStage(id) {
+  const order = ['new','contacted','estimate','won'];
+  const l = S.leads.find(x=>x.id===id);
+  if (!l) return;
+  const i = order.indexOf(l.stage);
+  if (i < order.length-1) { l.stage = order[i+1]; l.status = order[i+1]; }
+  toast(`✅ ${l.fname} moved to "${l.stage}"`);
+  render();
+}
+
+function exportLeads() {
+  const csv = ['Name,Phone,Zip,Service,Source,Stage,Priority,Created',
+    ...S.leads.map(l=>`${l.fname} ${l.lname},${l.phone},${l.zip},${l.service},${l.source},${l.stage},${l.priority},${l.created}`)
+  ].join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv,' + encodeURIComponent(csv);
+  a.download = 'servicestack-leads.csv';
+  a.click();
+  toast('⬇ Leads exported as CSV');
+}
+
+// ══════════════════════════════════════════════════
+//  FOLLOW-UP
+// ══════════════════════════════════════════════════
+const SEQ = [
+  { label:'Instant SMS', type:'SMS',   delay:'Immediate' },
+  { label:'2-hr Note',   type:'NOTE',  delay:'2 hours' },
+  { label:'24-hr Email', type:'EMAIL', delay:'24 hours' },
+  { label:'3-day SMS',   type:'SMS',   delay:'3 days' },
+  { label:'7-day Email', type:'EMAIL', delay:'7 days' },
+  { label:'14-day SMS',  type:'SMS',   delay:'14 days' },
+];
+
+function renderFollowUp() {
+  const pending = S.leads.filter(l => l.followup.some(f=>!f) && l.stage !== 'lost');
+  return `
+    <div class="section-title">Follow-Up Sequence (per lead)</div>
+    <div class="card" style="margin-bottom:22px;padding:18px 20px">
+      <div style="margin-bottom:12px;font-size:12px;color:var(--muted)">Every new lead automatically enters this 14-day sequence. Runs via Vercel cron.</div>
+      <div class="seq-row">
+        ${SEQ.map((s,i) => `
+          <div class="seq-step">
+            <div class="seq-dot ${i===0?'sent':i===2?'pending':'future'}">${i+1}</div>
+            <div class="seq-label">${s.label}</div>
+            <div class="seq-type">${s.type} · ${s.delay}</div>
+          </div>
+          ${i<SEQ.length-1?`<div class="seq-connector ${i<1?'done':''}"></div>`:''}
+        `).join('')}
+      </div>
+    </div>
+
+    <div class="section-title">Leads with Pending Messages (${pending.length})</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Lead</th><th>Stage</th><th>Step 1</th><th>Step 2</th><th>Step 3</th><th>Step 4</th><th>Step 5</th><th>Step 6</th><th>Actions</th></tr></thead>
+        <tbody>
+          ${S.leads.map(l=>`
+            <tr>
+              <td><div class="lead-name">${l.fname} ${l.lname}</div><div class="lead-source">${l.service}</div></td>
+              <td><span class="badge b-${l.stage}">${l.stage}</span></td>
+              ${l.followup.map(f=>`<td style="text-align:center">${f?'<span style="color:var(--green)">✓</span>':'<span style="color:var(--border)">○</span>'}</td>`).join('')}
+              <td><button class="btn btn-ghost btn-sm" onclick="sendNext(${l.id})">Send Next</button></td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <hr class="divider" />
+    <div class="section-title">AI Follow-Up Draft Generator <span class="ai-pill">✦ Claude</span></div>
+    <div class="card card-body" style="padding:16px">
+      <div class="form-row" style="margin-bottom:12px">
+        <div class="form-group" style="margin:0">
+          <label>Lead</label>
+          <select id="draft-lead">${S.leads.map(l=>`<option value="${l.id}">${l.fname} ${l.lname} — ${l.service}</option>`).join('')}</select>
+        </div>
+        <div class="form-group" style="margin:0">
+          <label>Tone</label>
+          <select id="draft-tone"><option>Friendly</option><option>Professional</option><option>Urgent</option></select>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="generateDraft()">✦ Generate AI Draft</button>
+      <div id="draft-output" style="margin-top:14px;display:none">
+        <label>Generated Message</label>
+        <textarea id="draft-text" style="margin-top:5px;height:90px"></textarea>
+        <div style="margin-top:8px;display:flex;gap:8px">
+          <button class="btn btn-success btn-sm" onclick="toast('📲 SMS sent!')">Send as SMS</button>
+          <button class="btn btn-ghost btn-sm" onclick="toast('📧 Email queued via Resend')">Send as Email</button>
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('draft-output').style.display='none'">Discard</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function sendNext(id) {
+  const l = S.leads.find(x=>x.id===id);
+  const i = l.followup.indexOf(false);
+  if (i>=0) { l.followup[i]=true; toast(`📲 Step ${i+1} sent to ${l.fname}`); render(); }
+  else toast('✅ All steps sent');
+}
+
+function generateDraft() {
+  const id = parseInt(document.getElementById('draft-lead').value);
+  const l = S.leads.find(x=>x.id===id);
+  const tone = document.getElementById('draft-tone').value;
+  const drafts = {
+    Friendly: `Hey ${l.fname}! 👋 This is ${S.settings.businessName}. Just following up on your ${l.service} request. We'd love to get you scheduled — reply or call us anytime!`,
+    Professional: `Hello ${l.fname}, this is ${S.settings.businessName} following up regarding your ${l.service} inquiry. Please let us know a convenient time to discuss your needs.`,
+    Urgent: `${l.fname} — don't wait on that ${l.service}! Small issues become big repairs. Reply NOW and we'll get you on the schedule today. — ${S.settings.businessName}`,
+  };
+  const out = document.getElementById('draft-output');
+  document.getElementById('draft-text').value = drafts[tone];
+  out.style.display = '';
+}
+
+// ══════════════════════════════════════════════════
+//  PIPELINE (KANBAN)
+// ══════════════════════════════════════════════════
+function renderPipeline() {
+  const stages = ['new','contacted','estimate','won','lost'];
+  const labels = { new:'New Leads', contacted:'Contacted', estimate:'Estimate Sent', won:'Won', lost:'Lost' };
+  const colors = { new:'var(--primary)', contacted:'var(--purple)', estimate:'var(--amber)', won:'var(--green)', lost:'var(--red)' };
+  const totalValue = S.leads.filter(l=>l.stage==='won').length * 485;
+
+  return `
+    <div class="stat-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px">
+      <div class="stat-card"><div class="stat-label">Pipeline Value</div><div class="stat-val" style="font-size:22px">$${(S.leads.filter(l=>l.stage!='lost').length*485).toLocaleString()}</div><div class="stat-delta">Est. avg ticket $485</div></div>
+      <div class="stat-card"><div class="stat-label">Won This Month</div><div class="stat-val" style="font-size:22px">$${totalValue.toLocaleString()}</div><div class="stat-delta">↑ vs last month</div></div>
+      <div class="stat-card"><div class="stat-label">Conversion Rate</div><div class="stat-val" style="font-size:22px">${Math.round(S.leads.filter(l=>l.stage==='won').length/S.leads.length*100)}%</div><div class="stat-delta">New → Won</div></div>
+    </div>
+    <div class="kanban">
+      ${stages.map(stage => {
+        const leads = S.leads.filter(l=>l.stage===stage);
+        return `
+          <div class="k-col">
+            <div class="k-col-head">
+              <span class="k-col-title">${labels[stage]}</span>
+              <span class="k-count">${leads.length}</span>
+            </div>
+            <div class="k-bar" style="background:${colors[stage]}20;border:1px solid ${colors[stage]}40"></div>
+            ${leads.length===0 ? '<div style="text-align:center;padding:20px;font-size:12px;color:var(--border)">Drop leads here</div>' : ''}
+            ${leads.map(l=>`
+              <div class="k-card" onclick="">
+                <div class="k-name">${l.fname} ${l.lname}</div>
+                <div class="k-meta">${l.service} · ${l.zip}</div>
+                <div class="k-meta" style="margin-top:2px">${l.phone}</div>
+                <div class="k-actions">
+                  ${stage!=='won'&&stage!=='lost'?`<button class="k-btn" onclick="event.stopPropagation();advanceStage(${l.id});render()">→ Advance</button>`:''}
+                  <button class="k-btn" onclick="event.stopPropagation();toast('📲 SMS sent to ${l.fname}!')">SMS</button>
+                  <button class="k-btn" onclick="event.stopPropagation();toast('📅 Booking link sent')">Book</button>
+                </div>
+              </div>
+            `).join('')}
+          </div>`;
+      }).join('')}
+    </div>`;
+}
+
+// ══════════════════════════════════════════════════
+//  SCHEDULE
+// ══════════════════════════════════════════════════
+function renderSchedule() {
+  const today = new Date();
+  return `
+    <div class="sched-grid">
+      <div>
+        <div class="section-title">Upcoming Appointments</div>
+        <div class="tbl-wrap">
+          <div class="tbl-head"><span class="tbl-title">Booked (${S.appointments.length})</span></div>
+          <table>
+            <thead><tr><th>Customer</th><th>Date</th><th>Time</th><th>Service</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody>
+              ${S.appointments.map(a=>`
+                <tr>
+                  <td><div class="lead-name">${a.name}</div>${a.notes?`<div class="lead-source">${a.notes}</div>`:''}</td>
+                  <td>${a.date}</td>
+                  <td>${a.time}</td>
+                  <td style="font-size:12px">${a.service}</td>
+                  <td><span class="badge ${a.confirmed?'b-won':'b-new'}">${a.confirmed?'Confirmed':'Pending'}</span></td>
+                  <td>
+                    <div style="display:flex;gap:4px">
+                      <button class="btn btn-ghost btn-sm" onclick="confirmAppt(${a.id})">✓ Confirm</button>
+                      <button class="btn btn-ghost btn-sm" onclick="cancelAppt(${a.id})">✕</button>
+                    </div>
+                  </td>
+                </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+        <div style="margin-top:16px;display:flex;align-items:center;gap:8px">
+          <span style="font-size:12px;color:var(--muted)">Google Calendar:</span>
+          <span class="badge b-won">✓ Connected</span>
+          <button class="btn btn-ghost btn-sm" onclick="toast('🔄 Syncing with Google Calendar...')">Sync Now</button>
+        </div>
+      </div>
+      <div>
+        <div class="section-title">Calendar</div>
+        <div class="mini-cal" id="mini-cal">
+          <div class="cal-nav">
+            <button class="cal-chevron" onclick="calPrev()">‹</button>
+            <span class="cal-month" id="cal-month-label">May 2026</span>
+            <button class="cal-chevron" onclick="calNext()">›</button>
+          </div>
+          <div class="cal-days" id="cal-days"></div>
+        </div>
+        <div style="margin-top:16px">
+          <div class="section-title">Today's Schedule</div>
+          <div style="font-size:13px;color:var(--muted);background:var(--bg);border-radius:6px;padding:14px;text-align:center">No appointments today.<br><a href="#" onclick="openModal('appt');return false" style="color:var(--primary)">Book one →</a></div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function confirmAppt(id) {
+  const a = S.appointments.find(x=>x.id===id);
+  if (a) { a.confirmed = true; toast('✅ Confirmed + SMS sent to customer'); render(); }
+}
+function cancelAppt(id) {
+  S.appointments = S.appointments.filter(x=>x.id!==id);
+  toast('🗑 Appointment cancelled'); render();
+}
+
+function renderMiniCal() {
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('cal-month-label').textContent = `${months[S.calMonth]} ${S.calYear}`;
+  const days = document.getElementById('cal-days');
+  if (!days) return;
+  const apptDates = S.appointments.map(a=>a.date);
+  const first = new Date(S.calYear, S.calMonth, 1).getDay();
+  const daysInMonth = new Date(S.calYear, S.calMonth+1, 0).getDate();
+  const today = new Date();
+  let html = ['Su','Mo','Tu','We','Th','Fr','Sa'].map(d=>`<div class="cal-dh">${d}</div>`).join('');
+  for (let i=0;i<first;i++) html += `<div class="cal-d other"></div>`;
+  for (let d=1;d<=daysInMonth;d++) {
+    const dateStr = `${S.calYear}-${String(S.calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isToday = d===today.getDate() && S.calMonth===today.getMonth() && S.calYear===today.getFullYear();
+    const hasAppt = apptDates.includes(dateStr);
+    html += `<div class="cal-d ${isToday?'today':hasAppt?'has-appt':''}" title="${hasAppt?'Has appointment':''}">${d}</div>`;
+  }
+  days.innerHTML = html;
+}
+
+function calPrev() { S.calMonth--; if(S.calMonth<0){S.calMonth=11;S.calYear--;} renderMiniCal(); }
+function calNext() { S.calMonth++; if(S.calMonth>11){S.calMonth=0;S.calYear++;} renderMiniCal(); }
+
+// ══════════════════════════════════════════════════
+//  IVR FLOW
+// ══════════════════════════════════════════════════
+function renderIVR() {
+  return `
+    <div class="card" style="margin-bottom:20px;padding:16px 18px">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:4px">
+        <div style="font-weight:700;font-size:15px">📞 Twilio IVR Call Flow</div>
+        <span class="badge b-won">Live</span>
+        <span style="font-size:12px;color:var(--muted)">+1 (845) 255-8020</span>
+      </div>
+      <div style="font-size:12px;color:var(--muted)">Inbound calls route through this automated menu. Leads captured via DTMF zip code entry, SMS follow-up fires immediately.</div>
+    </div>
+
+    <div class="section-title">After-Hours Flow</div>
+    <div class="ivr-flow" style="margin-bottom:22px">
+      <div class="ivr-node" style="border-color:var(--primary);border-width:2px">
+        <div class="ivr-title">📞 Incoming Call</div>
+        <div class="ivr-desc">Twilio webhook → /api/voice/incoming</div>
+        <span class="ivr-tag" style="background:var(--primary-lt);color:var(--primary)">ENTRY</span>
+      </div>
+      <div class="ivr-arrow">→</div>
+      <div class="ivr-node">
+        <div class="ivr-title">🕐 Hours Check</div>
+        <div class="ivr-desc">Check current time vs BUSINESS_OPEN/CLOSE_HOUR env vars</div>
+      </div>
+      <div class="ivr-arrow">→</div>
+      <div class="ivr-branch">
+        <div class="ivr-node" style="border-color:var(--amber)">
+          <div class="ivr-title">🌙 After Hours</div>
+          <div class="ivr-desc">Press 1 = Emergency, Press 2 = Callback</div>
+          <span class="ivr-tag" style="background:var(--amber-lt);color:var(--amber)">GATHER</span>
+        </div>
+        <div class="ivr-node" style="border-color:var(--green)">
+          <div class="ivr-title">☀️ Open Hours</div>
+          <div class="ivr-desc">Main menu: 1=Emergency, 2=Estimate, 3=Info</div>
+          <span class="ivr-tag" style="background:var(--green-lt);color:var(--green)">GATHER</span>
+        </div>
+      </div>
+      <div class="ivr-arrow">→</div>
+      <div class="ivr-node">
+        <div class="ivr-title">🔢 /api/voice/menu</div>
+        <div class="ivr-desc">DTMF handler routes by digit pressed</div>
+      </div>
+    </div>
+
+    <div class="section-title">Menu Options</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px">
+      <div class="card card-body" style="padding:14px;border-top:3px solid var(--red)">
+        <div style="font-weight:700;margin-bottom:6px">1️⃣ Emergency</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.5">Dials EMERGENCY_PHONE env var. Sends SMS alert: "🚨 EMERGENCY CALL from [caller] at [time]"</div>
+        <div style="margin-top:8px"><span class="badge b-lost">High Priority</span></div>
+      </div>
+      <div class="card card-body" style="padding:14px;border-top:3px solid var(--primary)">
+        <div style="font-weight:700;margin-bottom:6px">2️⃣ Estimate / New Lead</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.5">Gathers 5-digit zip via DTMF → /api/voice/lead-capture → creates Supabase lead → fires SMS</div>
+        <div style="margin-top:8px"><span class="badge b-new">Lead Capture</span></div>
+      </div>
+      <div class="card card-body" style="padding:14px;border-top:3px solid var(--green)">
+        <div style="font-weight:700;margin-bottom:6px">3️⃣ Business Info</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.5">Reads hours from BUSINESS_HOURS_TEXT. Sends booking link SMS via /api/voice/send-info-sms</div>
+        <div style="margin-top:8px"><span class="badge b-won">Info + SMS</span></div>
+      </div>
+    </div>
+
+    <div class="section-title">Recent Calls</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Caller</th><th>Time</th><th>Duration</th><th>Menu Choice</th><th>Outcome</th></tr></thead>
+        <tbody>
+          <tr><td>+1 (310) 555-9988</td><td>Today 9:12 AM</td><td>1m 24s</td><td>Press 2 — Estimate</td><td><span class="badge b-new">Lead Created</span></td></tr>
+          <tr><td>+1 (323) 555-0012</td><td>Today 8:47 AM</td><td>0m 38s</td><td>Press 3 — Info</td><td><span class="badge b-won">SMS Sent</span></td></tr>
+          <tr><td>+1 (818) 555-1199</td><td>Yesterday 11:02 PM</td><td>2m 01s</td><td>Press 1 — Emergency</td><td><span class="badge b-lost">Dialed Out</span></td></tr>
+          <tr><td>+1 (310) 555-4423</td><td>Yesterday 5:51 PM</td><td>0m 55s</td><td>No input</td><td><span class="badge b-estimate">Hung Up</span></td></tr>
+        </tbody>
+      </table>
+    </div>`;
+}
+
+// ══════════════════════════════════════════════════
+//  SETTINGS
+// ══════════════════════════════════════════════════
+function renderSettings() {
+  const s = S.settings;
+  return `
+    <div class="settings-grid">
+      <div>
+        <div class="settings-section">Business Info</div>
+        <div class="form-group"><label>Business Name</label><input id="s-name" value="${s.businessName}" /></div>
+        <div class="form-group"><label>Business Phone</label><input id="s-phone" value="${s.phone}" /></div>
+        <div class="form-group"><label>Business Email</label><input id="s-email" value="${s.email}" /></div>
+        <div class="form-group"><label>Timezone</label>
+          <select id="s-tz">
+            <option ${s.timezone==='America/Los_Angeles'?'selected':''}>America/Los_Angeles</option>
+            <option>America/New_York</option><option>America/Chicago</option><option>America/Denver</option>
+          </select>
+        </div>
+
+        <div class="settings-section">Business Hours</div>
+        <div class="form-row">
+          <div class="form-group"><label>Open Hour (24h)</label><input id="s-open" type="number" value="${s.openHour}" min="0" max="23" /></div>
+          <div class="form-group"><label>Close Hour (24h)</label><input id="s-close" type="number" value="${s.closeHour}" min="0" max="23" /></div>
+        </div>
+
+        <div class="settings-section">Emergency Routing</div>
+        <div class="form-group"><label>Emergency Phone (Twilio dials this on Press 1)</label><input id="s-emergency" value="${s.emergencyPhone}" /></div>
+        <div class="form-group"><label>Public Booking URL</label><input id="s-booking" value="${s.bookingUrl}" /></div>
+      </div>
+      <div>
+        <div class="settings-section">Integrations</div>
+        ${[
+          { name:'Twilio', icon:'📞', status:'Connected', detail:'Account SID + Auth Token', color:'b-won' },
+          { name:'Supabase', icon:'🗄️', status:'Connected', detail:'leads, appointments, followup_messages', color:'b-won' },
+          { name:'Resend', icon:'📧', status:'Needs Domain Verify', detail:'onboarding@resend.dev (test only)', color:'b-estimate' },
+          { name:'Stripe', icon:'💳', status:'Not Configured', detail:'Add STRIPE_SECRET_KEY to Vercel', color:'b-lost' },
+          { name:'Google Calendar', icon:'📅', status:'Connected', detail:'OAuth2 token active', color:'b-won' },
+          { name:'Anthropic (Claude)', icon:'✦', status:'Connected', detail:'claude-3-haiku-20240307', color:'b-won' },
+        ].map(i=>`
+          <div style="display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--border);border-radius:6px;margin-bottom:8px">
+            <span style="font-size:20px">${i.icon}</span>
+            <div style="flex:1">
+              <div style="font-weight:600;font-size:13px">${i.name}</div>
+              <div style="font-size:11px;color:var(--muted)">${i.detail}</div>
+            </div>
+            <span class="badge ${i.color}">${i.status}</span>
+          </div>`).join('')}
+
+        <div class="settings-section">Cron Jobs</div>
+        <div style="background:var(--bg);border-radius:6px;padding:12px;font-size:12px;font-family:monospace;color:var(--muted)">
+          <div>GET /api/cron → runs daily at 9:00 AM UTC</div>
+          <div style="margin-top:4px">Triggers follow-up sequence processing</div>
+          <div style="margin-top:4px;color:var(--green)">✓ Last ran: Today 9:00 AM · 6 messages queued</div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:20px">
+      <button class="btn btn-primary" onclick="saveSettings()">💾 Save Settings</button>
+      <button class="btn btn-ghost" style="margin-left:8px" onclick="toast('🔄 Testing all integrations...')">Test Integrations</button>
+    </div>`;
+}
+
+function saveSettings() {
+  S.settings.businessName = document.getElementById('s-name')?.value || S.settings.businessName;
+  S.settings.phone = document.getElementById('s-phone')?.value || S.settings.phone;
+  document.getElementById('biz-display').textContent = S.settings.businessName;
+  toast('✅ Settings saved');
+}
+
+// ══════════════════════════════════════════════════
+//  COMPARE
+// ══════════════════════════════════════════════════
+function renderCompare() {
+  const rows = [
+    { topic:'Theme', them:'Dark gold (#0A0A07 bg, #F0B429 accent)', us:'Light blue (--bg #F8FAFC, --primary #2563EB)' },
+    { topic:'Auth', them:'Single HMAC-signed cookie, one shared password per deployment', us:'Same concept shown — built for multi-tenant JWT swap-in' },
+    { topic:'Component structure', them:'1 monolithic FlowDesk.jsx (1300+ lines), all state in one component', us:'Modular render fns + single state object — easier to split into React components' },
+    { topic:'Navigation', them:'Top tab bar (Leads | Follow-Up | Sales Pipeline | Schedule | Settings)', us:'Left sidebar with sections, nav badges, business card footer' },
+    { topic:'Pipeline view', them:'Status list/table — leads shown in flat table with stage column', us:'Kanban board — 5 columns, cards with advance/SMS/Book actions, value estimates' },
+    { topic:'Follow-Up', them:'Server-side cron (vercel.json), Supabase followup_messages table', us:'Same architecture; adds visual sequence timeline + per-lead step tracker' },
+    { topic:'AI drafts', them:'POST /api/claude → Anthropic API, tone selection', us:'Same, adds per-lead context + send-as-SMS or send-as-Email buttons inline' },
+    { topic:'IVR / Phone', them:'6 API routes: incoming, menu, lead-capture, emergency-sms, send-info-sms, send-sms', us:'Same 6 routes visualized as flow diagram with call log table' },
+    { topic:'Calendar', them:'Google Calendar OAuth sync, appointments table', us:'Same + mini calendar with appointment dots highlighted' },
+    { topic:'Export', them:'Not shown in uploaded files', us:'CSV export button on leads table' },
+    { topic:'Deployment', them:'Vercel, cron via vercel.json, env vars in Vercel dashboard', us:'Same stack; adds integration status panel in Settings' },
+    { topic:'Database', them:'Supabase: leads, appointments, followup_messages, tenant_calendars, settings', us:'Same schema; data model identical' },
+    { topic:'Price point', them:'$297/month SaaS for local LA service businesses', us:'Same target market — could go $197 or $397 depending on AI usage tier' },
+  ];
+  return `
+    <div class="compare-banner">
+      <span>⚖️ Architecture comparison:</span>
+      <strong>FlowDesk</strong> <span style="color:var(--muted)">vs</span> <strong style="color:#60A5FA">ServiceStack</strong>
+      <span style="margin-left:auto;color:var(--muted)">Same market · Different design philosophy</span>
+    </div>
+    <div style="padding:20px 0">
+      ${rows.map(r=>`
+        <div style="margin-bottom:14px">
+          <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">${r.topic}</div>
+          <div class="compare-col">
+            <div class="diff-item diff-them"><div class="diff-label" style="color:#8B7340">FlowDesk</div>${r.them}</div>
+            <div class="diff-item diff-us"><div class="diff-label" style="color:var(--primary)">ServiceStack</div>${r.us}</div>
+          </div>
+        </div>`).join('')}
+
+      <hr class="divider" />
+      <div class="section-title">Key Architectural Decisions to Change</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        ${[
+          { icon:'🔐', title:'Auth — break the single-password model', body:'FlowDesk uses one shared HMAC password for everyone on the deployment. At scale you want per-user sessions (NextAuth or Supabase Auth). The middleware.js is clean and easy to swap.' },
+          { icon:'🧩', title:'Split the monolith', body:'FlowDesk.jsx at 1300+ lines is a red flag for maintainability. Split into LeadsTab, PipelineTab, FollowUpTab, etc. Each can own its own local state and fetch.' },
+          { icon:'📊', title:'Kanban over table for pipeline', body:'A flat table with a "status" badge column forces the user to mentally map stages. A Kanban board makes stage transitions visual and tactile — much better UX for a CRM.' },
+          { icon:'💰', title:'Revenue potential', body:'At $297/mo with ~$1-2/mo infra cost per client, this is a 99%+ margin SaaS. The real blocker is distribution — the product is solid. Get Stripe live first.' },
+        ].map(i=>`
+          <div class="card card-body" style="padding:14px">
+            <div style="font-size:18px;margin-bottom:6px">${i.icon}</div>
+            <div style="font-weight:700;font-size:13px;margin-bottom:4px">${i.title}</div>
+            <div style="font-size:12px;color:var(--muted);line-height:1.5">${i.body}</div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+}
+
+// ══════════════════════════════════════════════════
+//  LEAD CAPTURE
+// ══════════════════════════════════════════════════
+function captureLead() {
+  const fname = document.getElementById('f-fname').value.trim();
+  const lname = document.getElementById('f-lname').value.trim();
+  const phone = document.getElementById('f-phone').value.trim();
+  const zip   = document.getElementById('f-zip').value.trim();
+  if (!fname || !phone) { toast('⚠️ Name and phone required'); return; }
+  const newLead = {
+    id: Date.now(), fname, lname, phone, zip,
+    service: document.getElementById('f-service').value,
+    source:  document.getElementById('f-source').value,
+    priority:document.getElementById('f-priority').value,
+    notes:   document.getElementById('f-notes').value,
+    status:'new', stage:'new', created: new Date().toISOString(),
+    followup: [false,false,false,false,false,false],
+  };
+  // Auto-fire step 0
+  newLead.followup[0] = true;
+  S.leads.unshift(newLead);
+  closeModal('lead');
+  ['f-fname','f-lname','f-phone','f-zip','f-notes'].forEach(id=>document.getElementById(id).value='');
+  updateBadges();
+  toast(`✅ Lead captured! 📲 SMS fired to ${fname}`);
+  render();
+}
+
+function bookAppt() {
+  const name  = document.getElementById('a-name').value.trim();
+  const phone = document.getElementById('a-phone').value.trim();
+  const date  = document.getElementById('a-date').value;
+  const time  = document.getElementById('a-time').value;
+  if (!name || !date) { toast('⚠️ Name and date required'); return; }
+  S.appointments.push({ id:Date.now(), name, phone, date, time, service:document.getElementById('a-service').value, notes:document.getElementById('a-notes').value, confirmed:false });
+  closeModal('appt');
+  toast(`📅 Appointment booked for ${name} · Confirmation SMS sent`);
+  render();
+  if (S.tab==='schedule') renderMiniCal();
+}
+
+// ══════════════════════════════════════════════════
+//  MODAL HELPERS
+// ══════════════════════════════════════════════════
+function openModal(id) {
+  document.getElementById(`modal-${id}`).classList.add('open');
+  if (id==='appt') { const today=new Date().toISOString().split('T')[0]; document.getElementById('a-date').value=today; }
+}
+function closeModal(id) { document.getElementById(`modal-${id}`).classList.remove('open'); }
+document.querySelectorAll('.overlay').forEach(el => el.addEventListener('click', e => { if(e.target===el) el.classList.remove('open'); }));
+
+// ══════════════════════════════════════════════════
+//  UTILS
+// ══════════════════════════════════════════════════
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 3200);
+}
+
+function timeAgo(iso) {
+  const d = Math.round((Date.now()-new Date(iso))/60000);
+  if (d<1) return 'Just now';
+  if (d<60) return `${d}m ago`;
+  const h = Math.round(d/60);
+  if (h<24) return `${h}h ago`;
+  return `${Math.round(h/24)}d ago`;
+}
+
+function updateBadges() {
+  document.getElementById('badge-leads').textContent = S.leads.filter(l=>l.stage==='new').length;
+  const fu = document.getElementById('badge-fu');
+  const pending = S.leads.filter(l=>l.followup.some(f=>!f)&&l.stage!=='lost').length;
+  fu.style.display = pending ? '' : 'none';
+  fu.textContent = pending;
+}
+
+// ══════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════
+updateBadges();
+go('leads');
+</script>
+</body>
+</html>

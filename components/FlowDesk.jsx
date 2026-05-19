@@ -122,6 +122,41 @@ html,body{height:100%;background:${T.bg};font-family:'IBM Plex Sans',sans-serif;
 .flex{display:flex}.aic{align-items:center}.jcb{justify-content:space-between}.gap8{gap:8px}.gap12{gap:12px}
 .mb8{margin-bottom:8px}.mb12{margin-bottom:12px}.mb16{margin-bottom:16px}.mb20{margin-bottom:20px}.mb24{margin-bottom:24px}
 
+/* ─── CONVERSATIONS / INBOX ──────────────────────────────────────────────── */
+.inbox{display:grid;grid-template-columns:280px 1fr;gap:16px;height:calc(100vh - 200px);min-height:420px}
+@media(max-width:700px){.inbox{grid-template-columns:1fr;height:auto}}
+.thread-list{display:flex;flex-direction:column;overflow-y:auto;background:${T.card};border:1px solid ${T.border};border-radius:14px}
+.thread-item{padding:13px 15px;border-bottom:1px solid ${T.border};cursor:pointer;transition:background .15s;position:relative}
+.thread-item:last-child{border-bottom:none}
+.thread-item:hover{background:${T.surface}}
+.thread-item.active{background:${T.goldGlow};border-left:3px solid ${T.gold}}
+.thread-name{font-size:0.85rem;font-weight:600;margin-bottom:2px}
+.thread-preview{font-size:0.74rem;color:${T.muted};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:210px}
+.thread-time{font-size:0.66rem;color:${T.muted};position:absolute;top:13px;right:14px}
+.unread-dot{display:inline-block;width:7px;height:7px;background:${T.gold};border-radius:50%;margin-left:6px;vertical-align:middle}
+.msg-panel{display:flex;flex-direction:column;background:${T.card};border:1px solid ${T.border};border-radius:14px;overflow:hidden}
+.msg-hdr{padding:13px 18px;border-bottom:1px solid ${T.border};font-weight:600;font-size:0.88rem;background:${T.surface};display:flex;align-items:center;gap:10px}
+.msg-body{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;min-height:200px}
+.bubble{max-width:72%;padding:10px 14px;border-radius:12px;font-size:0.83rem;line-height:1.55}
+.bubble.in{background:${T.surface};border:1px solid ${T.border};align-self:flex-start;border-radius:4px 12px 12px 12px}
+.bubble.out{background:${T.goldGlow};border:1px solid rgba(240,180,41,.3);color:${T.gold};align-self:flex-end;border-radius:12px 4px 12px 12px}
+.bubble-time{font-size:0.64rem;color:${T.muted};margin-top:3px}
+.msg-reply{display:flex;gap:10px;padding:14px 18px;border-top:1px solid ${T.border};background:${T.surface}}
+.msg-reply textarea{flex:1;background:${T.card};border:1px solid ${T.border};border-radius:9px;padding:9px 12px;color:${T.text};font-size:0.84rem;font-family:'IBM Plex Sans',sans-serif;outline:none;resize:none;height:60px;transition:border-color .2s}
+.msg-reply textarea:focus{border-color:${T.gold}}
+.msg-reply textarea::placeholder{color:${T.muted}}
+/* ─── BROADCAST ──────────────────────────────────────────────────────────── */
+.char-count{font-size:0.72rem;text-align:right;margin-top:4px;color:${T.muted}}
+.char-count.warn{color:${T.gold}}
+.char-count.over{color:${T.red}}
+.bc-hist{width:100%;border-collapse:collapse;font-size:0.82rem}
+.bc-hist th{text-align:left;padding:8px 12px;color:${T.muted};font-size:0.69rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;border-bottom:1px solid ${T.border}}
+.bc-hist td{padding:10px 12px;border-bottom:1px solid ${T.border}}
+.bc-hist tr:last-child td{border-bottom:none}
+/* ─── REVIEWS ────────────────────────────────────────────────────────────── */
+.rv-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid ${T.border}}
+.rv-row:last-child{border-bottom:none}
+
 /* ─── ONBOARDING WIZARD ──────────────────────────────────────────────────── */
 .ow{min-height:100vh;display:flex;flex-direction:column;background:${T.bg};position:relative}
 .ow::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");opacity:0.6}
@@ -1058,15 +1093,14 @@ function OnboardingWizard({onComplete}){
       <div className="ow-hdr">
         <div className="logo">
           <svg width="110" height="32" viewBox="0 0 400 120" fill="none" xmlns="http://www.w3.org/2000/svg" style={{verticalAlign:"middle"}}>
-            <defs><linearGradient id="gd" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#F0B429"/><stop offset="100%" stop-color="#C49020"/></linearGradient></defs>
+            <defs><linearGradient id="gd" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor="#F0B429"/><stop offset="100%" stopColor="#C49020"/></linearGradient></defs>
             <rect x="0" y="0" width="60" height="10" rx="3" fill="url(#gd)"/>
             <rect x="8" y="18" width="44" height="10" rx="3" fill="url(#gd)" opacity="0.85"/>
             <rect x="16" y="36" width="28" height="10" rx="3" fill="url(#gd)" opacity="0.7"/>
             <polygon points="22,52 38,52 46,70 14,70" fill="url(#gd)" opacity="0.6"/>
-            <rect x="0.6"/>
             <rect x="14" y="64" width="32" height="10" rx="8" fill="url(#gd)" opacity="0.5"/>
-            <text x="115" y="58" font-family="Georgia,serif" font-size="44" font-weight="700" fill="#F0EAD6" letter-spacing="-0.5">Flow</text>
-            <text x="115" y="90" font-family="Arial,sans-serif" font-size="20" font-weight="500" fill="#8A8470" letter-spacing="3.5">DESK</text>
+            <text x="115" y="58" fontFamily="Georgia,serif" fontSize="44" fontWeight="700" fill="#F0EAD6" letterSpacing="-0.5">Flow</text>
+            <text x="115" y="90" fontFamily="Arial,sans-serif" fontSize="20" fontWeight="500" fill="#8A8470" letterSpacing="3.5">DESK</text>
             <circle cx="225" cy="50" r="3" fill="#F0B429"/>
           </svg>
           <sub>Lead Engine</sub>
@@ -1188,6 +1222,425 @@ function OnboardingWizard({onComplete}){
   );
 }
 
+// ─── CONVERSATIONS (SMS INBOX) ────────────────────────────────────────────────
+function ConversationsView(){
+  const [threads,setThreads]=useState([]);
+  const [activePhone,setActivePhone]=useState(null);
+  const [messages,setMessages]=useState([]);
+  const [replyText,setReplyText]=useState("");
+  const [sending,setSending]=useState(false);
+  const [loadingThreads,setLoadingThreads]=useState(true);
+  const [loadingMsgs,setLoadingMsgs]=useState(false);
+  const [toast,setToast]=useState(null);
+  const bodyRef=useRef(null);
+
+  useEffect(()=>{
+    async function load(){
+      setLoadingThreads(true);
+      const res=await fetch("/api/conversations").catch(()=>null);
+      if(res?.ok) setThreads(await res.json());
+      setLoadingThreads(false);
+    }
+    load();
+  },[]);
+
+  useEffect(()=>{
+    if(bodyRef.current) bodyRef.current.scrollTop=bodyRef.current.scrollHeight;
+  },[messages]);
+
+  async function openThread(phone){
+    setActivePhone(phone);
+    setMessages([]);
+    setLoadingMsgs(true);
+    const res=await fetch("/api/conversations?phone="+encodeURIComponent(phone)).catch(()=>null);
+    if(res?.ok){
+      const data=await res.json();
+      setMessages(data);
+      setThreads(prev=>prev.map(t=>t.phone===phone?{...t,unread:0}:t));
+    }
+    setLoadingMsgs(false);
+  }
+
+  async function sendReply(){
+    if(!replyText.trim()||!activePhone) return;
+    setSending(true);
+    const body=replyText.trim();
+    setReplyText("");
+    const res=await fetch("/api/conversations",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({to:activePhone,body}),
+    }).catch(()=>null);
+    if(res?.ok){
+      const msg=await res.json();
+      setMessages(prev=>[...prev,msg]);
+      setThreads(prev=>{
+        const exists=prev.find(t=>t.phone===activePhone);
+        if(exists) return prev.map(t=>t.phone===activePhone?{...t,lastMessage:body,direction:"outbound",time:new Date().toISOString()}:t);
+        return [{phone:activePhone,lastMessage:body,direction:"outbound",time:new Date().toISOString(),unread:0},...prev];
+      });
+    } else {
+      setToast({msg:"Failed to send. Check Twilio config.",type:"err"});
+      setReplyText(body);
+    }
+    setSending(false);
+  }
+
+  function fmt(ts){
+    if(!ts) return "";
+    const d=new Date(ts);
+    const now=new Date();
+    if(d.toDateString()===now.toDateString()) return d.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
+    return d.toLocaleDateString([],{month:"short",day:"numeric"})+" "+d.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
+  }
+
+  const activeThread=threads.find(t=>t.phone===activePhone);
+
+  return(
+    <div className="z1">
+      {toast&&<Toast msg={toast.msg} type={toast.type} onDone={()=>setToast(null)}/>}
+      <div className="section-hd">💬 SMS Inbox</div>
+      <div className="inbox">
+        <div className="thread-list">
+          {loadingThreads&&<div style={{padding:"20px",textAlign:"center",color:"#8A8470",fontSize:"0.82rem"}}><span className="spin">◌</span> Loading…</div>}
+          {!loadingThreads&&threads.length===0&&(
+            <div style={{padding:"24px 16px",textAlign:"center",color:"#8A8470",fontSize:"0.82rem"}}>No conversations yet.<br/>Inbound SMS will appear here.</div>
+          )}
+          {threads.map(t=>(
+            <div key={t.phone} className={"thread-item"+(activePhone===t.phone?" active":"")} onClick={()=>openThread(t.phone)}>
+              <div className="thread-name">
+                {t.phone}
+                {t.unread>0&&<span className="unread-dot"/>}
+              </div>
+              <div className="thread-preview">
+                {t.direction==="outbound"&&<span style={{color:"#8A8470"}}>You: </span>}
+                {t.lastMessage}
+              </div>
+              <div className="thread-time">{fmt(t.time)}</div>
+            </div>
+          ))}
+        </div>
+        <div className="msg-panel">
+          {!activePhone&&(
+            <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",color:"#8A8470",fontSize:"0.85rem",flexDirection:"column",gap:8,padding:40}}>
+              <div style={{fontSize:"2rem"}}>💬</div>
+              Select a conversation to read and reply
+            </div>
+          )}
+          {activePhone&&(
+            <>
+              <div className="msg-hdr">
+                <div className="lav" style={{width:30,height:30,fontSize:"0.72rem"}}>{activePhone.slice(-4)}</div>
+                <div>
+                  <div style={{fontWeight:600}}>{activePhone}</div>
+                  {activeThread&&activeThread.lead_id&&<div style={{fontSize:"0.7rem",color:"#8A8470"}}>Lead linked</div>}
+                </div>
+              </div>
+              <div className="msg-body" ref={bodyRef}>
+                {loadingMsgs&&<div style={{textAlign:"center",color:"#8A8470",fontSize:"0.82rem",padding:"20px 0"}}><span className="spin">◌</span> Loading thread…</div>}
+                {!loadingMsgs&&messages.length===0&&<div style={{textAlign:"center",color:"#8A8470",fontSize:"0.82rem",padding:"20px 0"}}>No messages in this thread.</div>}
+                {messages.map((m,i)=>(
+                  <div key={m.id||i} style={{display:"flex",flexDirection:"column",alignItems:m.direction==="outbound"?"flex-end":"flex-start"}}>
+                    <div className={"bubble "+(m.direction==="inbound"?"in":"out")}>{m.body}</div>
+                    <div className="bubble-time" style={{textAlign:m.direction==="outbound"?"right":"left"}}>{fmt(m.created_at)}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="msg-reply">
+                <textarea
+                  placeholder="Type a reply… (Enter to send)"
+                  value={replyText}
+                  onChange={e=>setReplyText(e.target.value)}
+                  onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendReply()}}}
+                  disabled={sending}
+                />
+                <button className="btn btn-g" style={{alignSelf:"flex-end",padding:"9px 16px",fontSize:"0.82rem"}} onClick={sendReply} disabled={sending||!replyText.trim()}>
+                  {sending?<span className="spin">◌</span>:"Send →"}
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── BROADCAST ────────────────────────────────────────────────────────────────
+function BroadcastView({leads}){
+  const EMPTY={name:"",message:"",segment:"all",send_now:true};
+  const [form,setForm]=useState(EMPTY);
+  const [broadcasts,setBroadcasts]=useState([]);
+  const [sending,setSending]=useState(false);
+  const [toast,setToast]=useState(null);
+  const [loading,setLoading]=useState(true);
+
+  useEffect(()=>{
+    async function load(){
+      setLoading(true);
+      const res=await fetch("/api/broadcast").catch(()=>null);
+      if(res?.ok) setBroadcasts(await res.json());
+      setLoading(false);
+    }
+    load();
+  },[]);
+
+  const charCount=form.message.length;
+  const charClass=charCount>160?"over":charCount>130?"warn":"";
+
+  async function submit(e){
+    e.preventDefault();
+    if(charCount>160){setToast({msg:"Message must be 160 chars or fewer.",type:"err"});return;}
+    setSending(true);
+    const res=await fetch("/api/broadcast",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(form),
+    }).catch(()=>null);
+    if(res?.ok){
+      const data=await res.json();
+      setBroadcasts(prev=>[data,...prev]);
+      setForm(EMPTY);
+      setToast({msg:"Broadcast "+(form.send_now?"sent":"scheduled")+"! "+(data.sent_count||0)+" messages dispatched.",type:"ok"});
+    } else {
+      const err=res?await res.json().catch(()=>({error:"Unknown error"})):{error:"Connection error"};
+      setToast({msg:err.error||"Failed to send broadcast.",type:"err"});
+    }
+    setSending(false);
+  }
+
+  const SEGMENTS=[
+    {value:"all",  label:"All Leads"},
+    {value:"new",  label:"New"},
+    {value:"hot",  label:"Hot"},
+    {value:"warm", label:"Warm"},
+    {value:"won",  label:"Won"},
+    {value:"lost", label:"Lost"},
+  ];
+
+  function fmtDate(ts){
+    if(!ts) return "—";
+    return new Date(ts).toLocaleString([],{month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"});
+  }
+
+  const recipientEstimate=form.segment==="all"?leads.length:leads.filter(l=>l.status===form.segment||l.stage===form.segment).length;
+
+  return(
+    <div className="z1">
+      {toast&&<Toast msg={toast.msg} type={toast.type} onDone={()=>setToast(null)}/>}
+      <div className="section-hd">📢 SMS Broadcast</div>
+      <div className="two-col">
+        <div>
+          <div className="card">
+            <div className="card-title">✉ Compose Broadcast</div>
+            <form onSubmit={submit}>
+              <div style={{display:"flex",flexDirection:"column",gap:14}}>
+                <div className="field">
+                  <label>Campaign Name</label>
+                  <input required placeholder="e.g. Summer Promo 2025" value={form.name} onChange={e=>setForm(p=>({...p,name:e.target.value}))}/>
+                </div>
+                <div className="field">
+                  <label>Segment</label>
+                  <select value={form.segment} onChange={e=>setForm(p=>({...p,segment:e.target.value}))}>
+                    {SEGMENTS.map(s=><option key={s.value} value={s.value}>{s.label}</option>)}
+                  </select>
+                  <div style={{fontSize:"0.72rem",color:"#8A8470",marginTop:4}}>
+                    ~{recipientEstimate} recipient{recipientEstimate!==1?"s":""}
+                  </div>
+                </div>
+                <div className="field">
+                  <label>Message</label>
+                  <textarea
+                    required
+                    placeholder="Hi {name}, we have a special offer for you…"
+                    style={{minHeight:96}}
+                    value={form.message}
+                    onChange={e=>setForm(p=>({...p,message:e.target.value}))}
+                  />
+                  <div className={"char-count "+charClass}>{charCount}/160{charCount>160&&" — too long!"}</div>
+                </div>
+                <label style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer",fontSize:"0.84rem"}}>
+                  <input type="checkbox" checked={form.send_now} onChange={e=>setForm(p=>({...p,send_now:e.target.checked}))} style={{accentColor:"#F0B429",width:16,height:16}}/>
+                  Send immediately
+                </label>
+                <button type="submit" className="btn btn-g" disabled={sending||charCount>160}>
+                  {sending?<><span className="spin">◌</span> Sending…</>:"📢 "+(form.send_now?"Send Now":"Schedule")}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div>
+          <div className="card" style={{padding:"16px 0"}}>
+            <div className="card-title" style={{padding:"0 18px",marginBottom:12}}>📊 Broadcast History</div>
+            {loading&&<div style={{padding:"20px",textAlign:"center",color:"#8A8470",fontSize:"0.82rem"}}><span className="spin">◌</span> Loading…</div>}
+            {!loading&&broadcasts.length===0&&(
+              <div style={{padding:"20px",textAlign:"center",color:"#8A8470",fontSize:"0.82rem"}}>No broadcasts yet.</div>
+            )}
+            {!loading&&broadcasts.length>0&&(
+              <div style={{overflowX:"auto"}}>
+                <table className="bc-hist">
+                  <thead>
+                    <tr>
+                      <th>Campaign</th>
+                      <th>Segment</th>
+                      <th>Sent</th>
+                      <th>Status</th>
+                      <th>Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {broadcasts.map(b=>(
+                      <tr key={b.id}>
+                        <td style={{fontWeight:600}}>{b.name}</td>
+                        <td style={{color:"#8A8470",textTransform:"capitalize"}}>{b.segment}</td>
+                        <td>{b.sent_count||0}/{b.recipient_count||0}</td>
+                        <td>
+                          <span className={"badge "+(b.status==="sent"?"b-done":b.status==="sending"?"b-warm":"b-cold")}>
+                            {b.status}
+                          </span>
+                        </td>
+                        <td style={{color:"#8A8470",fontSize:"0.76rem"}}>{fmtDate(b.sent_at||b.created_at)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── REVIEWS ──────────────────────────────────────────────────────────────────
+function ReviewsView({leads}){
+  const [requests,setRequests]=useState([]);
+  const [loading,setLoading]=useState(true);
+  const [sending,setSending]=useState(null);
+  const [toast,setToast]=useState(null);
+
+  const wonLeads=leads.filter(l=>l.stage==="Won"||l.stage==="Review Requested"||l.status==="won");
+
+  useEffect(()=>{
+    async function load(){
+      setLoading(true);
+      const res=await fetch("/api/reviews").catch(()=>null);
+      if(res?.ok) setRequests(await res.json());
+      setLoading(false);
+    }
+    load();
+  },[]);
+
+  async function send(leadIds,label){
+    setSending(label);
+    const body=leadIds==="all"?{send_to_all_won:true}:{lead_ids:leadIds};
+    const res=await fetch("/api/reviews",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(body),
+    }).catch(()=>null);
+    if(res?.ok){
+      const data=await res.json();
+      setToast({msg:"Sent "+data.sent+" review request"+(data.sent!==1?"s":"")+"!",type:"ok"});
+      const r2=await fetch("/api/reviews").catch(()=>null);
+      if(r2?.ok) setRequests(await r2.json());
+    } else {
+      const err=res?await res.json().catch(()=>({error:"Error"})):{error:"Connection error"};
+      setToast({msg:err.error||"Failed to send.",type:"err"});
+    }
+    setSending(null);
+  }
+
+  function fmtDate(ts){
+    if(!ts) return "—";
+    return new Date(ts).toLocaleDateString([],{month:"short",day:"numeric",year:"numeric"});
+  }
+
+  function ini(n){return(n||"?").split(" ").map(w=>w[0]).join("").slice(0,2).toUpperCase()}
+
+  const sentIds=new Set(requests.map(r=>r.lead_id));
+  const pendingWon=wonLeads.filter(l=>!sentIds.has(l.id));
+
+  return(
+    <div className="z1">
+      {toast&&<Toast msg={toast.msg} type={toast.type} onDone={()=>setToast(null)}/>}
+      <div className="section-hd">⭐ Review Requests</div>
+      <div className="stats mb20">
+        {[
+          {n:wonLeads.length,   l:"Won Clients",     c:"#5ABF8A"},
+          {n:requests.length,   l:"Requests Sent",   c:"#F0B429"},
+          {n:pendingWon.length, l:"Pending",          c:"#5A9FE0"},
+        ].map((s,i)=>(
+          <div key={i} className="stat" style={{"--c":s.c}}>
+            <div className="stat-n">{s.n}</div>
+            <div className="stat-l">{s.l}</div>
+          </div>
+        ))}
+        <div className="stat" style={{"--c":"#F0B429"}}>
+          <button className="btn btn-g" style={{width:"100%",fontSize:"0.8rem"}} disabled={!!sending||pendingWon.length===0} onClick={()=>send("all","all")}>
+            {sending==="all"?<><span className="spin">◌</span> Sending…</>:"⭐ Send to All Won ("+pendingWon.length+")"}
+          </button>
+          <div className="stat-l" style={{marginTop:8}}>Not yet requested</div>
+        </div>
+      </div>
+      <div className="two-col">
+        <div className="card" style={{padding:"16px 0"}}>
+          <div className="card-title" style={{padding:"0 18px"}}>🏆 Won Clients</div>
+          {wonLeads.length===0&&(
+            <div style={{padding:"20px",textAlign:"center",color:"#8A8470",fontSize:"0.82rem"}}>No won leads yet.<br/>Close a deal to see them here.</div>
+          )}
+          {wonLeads.map(l=>{
+            const alreadySent=sentIds.has(l.id);
+            return(
+              <div key={l.id} className="rv-row" style={{padding:"12px 18px"}}>
+                <div className="lav">{ini(l.name)}</div>
+                <div style={{flex:1,minWidth:0}}>
+                  <div style={{fontSize:"0.85rem",fontWeight:600}}>{l.name}</div>
+                  <div style={{fontSize:"0.74rem",color:"#8A8470"}}>{l.phone||"No phone"} · {l.service}</div>
+                </div>
+                {alreadySent?(
+                  <span className="badge b-done">✓ Sent</span>
+                ):(
+                  <button
+                    className="btn btn-o btn-s"
+                    style={{fontSize:"0.74rem",whiteSpace:"nowrap"}}
+                    disabled={!!sending}
+                    onClick={()=>send([l.id],l.id)}
+                  >
+                    {sending===l.id?<span className="spin">◌</span>:"⭐ Request"}
+                  </button>
+                )}
+              </div>
+            );
+          })}
+        </div>
+        <div className="card" style={{padding:"16px 0"}}>
+          <div className="card-title" style={{padding:"0 18px"}}>📬 Sent Requests</div>
+          {loading&&<div style={{padding:"20px",textAlign:"center",color:"#8A8470",fontSize:"0.82rem"}}><span className="spin">◌</span> Loading…</div>}
+          {!loading&&requests.length===0&&(
+            <div style={{padding:"20px",textAlign:"center",color:"#8A8470",fontSize:"0.82rem"}}>No review requests sent yet.</div>
+          )}
+          {requests.map(r=>(
+            <div key={r.id} className="rv-row" style={{padding:"12px 18px"}}>
+              <div className="lav" style={{width:30,height:30,fontSize:"0.7rem"}}>{ini(r.leads?.name||r.phone||"?")}</div>
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{fontSize:"0.84rem",fontWeight:600}}>{r.leads?.name||r.phone}</div>
+                <div style={{fontSize:"0.74rem",color:"#8A8470"}}>{r.phone} · {r.leads?.service||""}</div>
+              </div>
+              <div style={{textAlign:"right",fontSize:"0.74rem",color:"#8A8470",flexShrink:0}}>
+                <span className="badge b-done">Sent</span>
+                <div style={{marginTop:4}}>{fmtDate(r.sent_at||r.created_at)}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── ROOT ─────────────────────────────────────────────────────────────────────
 export default function FlowDesk(){
   const [tab,setTab]=useState("dash");
@@ -1195,10 +1648,9 @@ export default function FlowDesk(){
   const [appts,setAppts]=useState([]);
   const [aiLead,setAiLead]=useState(null);
   const [loadingData,setLoadingData]=useState(true);
-  const [showOnboarding,setShowOnboarding]=useState(null); // null=loading, true=show wizard, false=show dashboard
+  const [showOnboarding,setShowOnboarding]=useState(null);
   const tenant=process.env.NEXT_PUBLIC_BUSINESS_NAME||"FlowDesk";
 
-  // Check onboarding state on mount
   useEffect(()=>{
     async function checkOnboarding(){
       const res=await fetch("/api/settings").catch(()=>null);
@@ -1210,7 +1662,6 @@ export default function FlowDesk(){
           setShowOnboarding(true);
         }
       } else {
-        // If we can't reach settings API, show the dashboard
         setShowOnboarding(false);
       }
     }
@@ -1234,18 +1685,21 @@ export default function FlowDesk(){
   },[showOnboarding]);
 
   const TABS=[
-    {id:"dash",     label:"Dashboard",    icon:"◈"},
-    {id:"leads",    label:"Lead Capture", icon:"📋"},
-    {id:"fu",     label:"Follow-Up",    icon:"⚡"},
-    {id:"sched",  label:"Schedule",     icon:"📅"},
-    {id:"settings",label:"Settings",     icon:"⚙"},
+    {id:"dash",      label:"Dashboard",   icon:"◈"},
+    {id:"leads",     label:"Lead Capture",icon:"📋"},
+    {id:"fu",        label:"Follow-Up",   icon:"⚡"},
+    {id:"inbox",     label:"Inbox",       icon:"💬"},
+    {id:"broadcast", label:"Broadcast",   icon:"📢"},
+    {id:"reviews",   label:"Reviews",     icon:"⭐"},
+    {id:"sched",     label:"Schedule",    icon:"📅"},
+    {id:"settings",  label:"Settings",    icon:"⚙"},
   ];
 
   return(
     <>
       <style>{CSS}</style>
       {showOnboarding===null&&(
-        <div style={{display:"flex",alignItems:"center",justifyContent:"center",minHeight:"100vh",background:T.bg,flexDirection:"column",gap:14}}>
+        <div style={{display:"flex",alignItems:"center",justifyContent:"center",minHeight:"100vh",background:"#111008",flexDirection:"column",gap:14}}>
           <div className="logo" style={{fontSize:"1.5rem"}}>FlowDesk<sub style={{textAlign:"center"}}>Loading…</sub></div>
         </div>
       )}
@@ -1259,20 +1713,20 @@ export default function FlowDesk(){
             <div className="hdr z1">
               <div className="logo">
                 <svg width="100" height="28" viewBox="0 0 400 120" fill="none" xmlns="http://www.w3.org/2000/svg" style={{verticalAlign:"middle"}}>
-                  <defs><linearGradient id="gh" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#F0B429"/><stop offset="100%" stop-color="#C49020"/></linearGradient></defs>
+                  <defs><linearGradient id="gh" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor="#F0B429"/><stop offset="100%" stopColor="#C49020"/></linearGradient></defs>
                   <rect x="0" y="0" width="60" height="10" rx="3" fill="url(#gh)"/>
                   <rect x="8" y="18" width="44" height="10" rx="3" fill="url(#gh)" opacity="0.85"/>
                   <rect x="16" y="36" width="28" height="10" rx="3" fill="url(#gh)" opacity="0.7"/>
                   <polygon points="22,52 38,52 46,70 14,70" fill="url(#gh)" opacity="0.6"/>
                   <rect x="14" y="64" width="32" height="10" rx="8" fill="url(#gh)" opacity="0.5"/>
-                  <text x="115" y="58" font-family="Georgia,serif" font-size="44" font-weight="700" fill="#F0EAD6" letter-spacing="-0.5">Flow</text>
-                  <text x="115" y="90" font-family="Arial,sans-serif" font-size="20" font-weight="500" fill="#8A8470" letter-spacing="3.5">DESK</text>
+                  <text x="115" y="58" fontFamily="Georgia,serif" fontSize="44" fontWeight="700" fill="#F0EAD6" letterSpacing="-0.5">Flow</text>
+                  <text x="115" y="90" fontFamily="Arial,sans-serif" fontSize="20" fontWeight="500" fill="#8A8470" letterSpacing="3.5">DESK</text>
                   <circle cx="225" cy="50" r="3" fill="#F0B429"/>
                 </svg>
               </div>
               <div className="flex aic gap12">
                 <a href="/outreach" className="btn btn-o btn-s" style={{fontSize:"0.7rem",textDecoration:"none"}}>📞 Outreach</a>
-                <button className="btn btn-o btn-s" style={{fontSize:"0.7rem",cursor:"pointer"}} onClick={async () => { await fetch("/api/auth/logout"); window.location.href = "/login"; }}>🚪 Logout</button>
+                <button className="btn btn-o btn-s" style={{fontSize:"0.7rem",cursor:"pointer"}} onClick={async()=>{await fetch("/api/auth/logout");window.location.href="/login";}}>🚪 Logout</button>
                 <div style={{textAlign:"right"}}>
                   <div className="hdr-stat-num">{leads.length}</div>
                   <div className="hdr-stat-lbl">Active Leads</div>
@@ -1282,23 +1736,26 @@ export default function FlowDesk(){
             </div>
             <div className="nav z1">
               {TABS.map(t=>(
-                <button key={t.id} className={`nav-btn ${tab===t.id?"on":""}`} onClick={()=>setTab(t.id)}>
+                <button key={t.id} className={"nav-btn"+(tab===t.id?" on":"")} onClick={()=>setTab(t.id)}>
                   <span>{t.icon}</span>{t.label}
                 </button>
               ))}
             </div>
             <div className="main z1">
               {loadingData?(
-                <div style={{display:"flex",alignItems:"center",justifyContent:"center",height:300,gap:10,color:T.muted}}>
+                <div style={{display:"flex",alignItems:"center",justifyContent:"center",height:300,gap:10,color:"#8A8470"}}>
                   <span className="spin" style={{fontSize:"1.2rem"}}>◌</span> Loading…
                 </div>
               ):(
                 <>
-                  {tab==="dash"     &&<Dashboard leads={leads} appts={appts} onTab={setTab}/>}
-                  {tab==="leads"    &&<LeadsView leads={leads} setLeads={setLeads} setAiLead={setAiLead}/>}
-                  {tab==="fu"       &&<FollowUpView leads={leads}/>}
-                  {tab==="sched"    &&<ScheduleView leads={leads} appts={appts} setAppts={setAppts}/>}
-                  {tab==="settings" &&<SettingsView tenant={tenant}/>}
+                  {tab==="dash"      &&<Dashboard leads={leads} appts={appts} onTab={setTab}/>}
+                  {tab==="leads"     &&<LeadsView leads={leads} setLeads={setLeads} setAiLead={setAiLead}/>}
+                  {tab==="fu"        &&<FollowUpView leads={leads}/>}
+                  {tab==="inbox"     &&<ConversationsView/>}
+                  {tab==="broadcast" &&<BroadcastView leads={leads}/>}
+                  {tab==="reviews"   &&<ReviewsView leads={leads}/>}
+                  {tab==="sched"     &&<ScheduleView leads={leads} appts={appts} setAppts={setAppts}/>}
+                  {tab==="settings"  &&<SettingsView tenant={tenant}/>}
                 </>
               )}
             </div>
@@ -1308,3 +1765,4 @@ export default function FlowDesk(){
     </>
   );
 }
+                                      

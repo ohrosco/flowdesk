@@ -35,14 +35,14 @@ export default function PrivacyPage() {
         <a href="/" style={{textDecoration:"none"}}>
           <div className="logo">
             <svg width="125" height="38" viewBox="0 0 400 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <defs><linearGradient id="gp" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#F0B429"/><stop offset="100%" stop-color="#C49020"/></linearGradient></defs>
+              <defs><linearGradient id="gp" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor="#F0B429"/><stop offset="100%" stopColor="#C49020"/></linearGradient></defs>
               <rect x="0" y="0" width="60" height="10" rx="3" fill="url(#gp)"/>
               <rect x="8" y="18" width="44" height="10" rx="3" fill="url(#gp)" opacity="0.85"/>
               <rect x="16" y="36" width="28" height="10" rx="3" fill="url(#gp)" opacity="0.7"/>
               <polygon points="22,52 38,52 46,70 14,70" fill="url(#gp)" opacity="0.6"/>
               <rect x="14" y="64" width="32" height="10" rx="8" fill="url(#gp)" opacity="0.5"/>
-              <text x="115" y="58" font-family="Georgia,serif" font-size="44" font-weight="700" fill="#F0EAD6" letter-spacing="-0.5">Flow</text>
-              <text x="115" y="90" font-family="Arial,sans-serif" font-size="20" font-weight="500" fill="#8A8470" letter-spacing="3.5">DESK</text>
+              <text x="115" y="58" fontFamily="Georgia,serif" fontSize="44" fontWeight="700" fill="#F0EAD6" letterSpacing="-0.5">Flow</text>
+              <text x="115" y="90" fontFamily="Arial,sans-serif" fontSize="20" fontWeight="500" fill="#8A8470" letterSpacing="3.5">DESK</text>
               <circle cx="225" cy="50" r="3" fill="#F0B429"/>
             </svg>
             <sub>Lead Engine</sub>

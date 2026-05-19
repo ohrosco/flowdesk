@@ -21,18 +21,21 @@ const PRICING = [
     name:"Starter", price:"$197", desc:"For solo operators testing the waters",
     features:["1-page website", "AI phone answering (100 min/mo)", "Lead capture CRM", "SMS follow-up sequence", "Online booking widget"],
     cta:"Start Free Trial",
+    tier:"starter",
     popular:false,
   },
   {
     name:"Professional", price:"$297", desc:"For growing teams that want it all",
     features:["5-page custom website", "AI phone answering (300 min/mo)", "Full lead CRM + pipeline", "SMS + Email + Call follow-ups", "Online booking + auto-reminders", "AI draft follow-ups", "Priority support"],
     cta:"Start Free Trial",
+    tier:"professional",
     popular:true,
   },
   {
     name:"Agency", price:"$497", desc:"For multi-location businesses",
     features:["10-page website + sub-pages", "AI phone answering (unlimited)", "Multi-location CRM", "White-label dashboard", "Custom integrations", "Dedicated account manager"],
     cta:"Contact Us",
+    tier:"agency",
     popular:false,
   },
 ];
@@ -131,6 +134,34 @@ body{background:${T.bg};color:${T.text};font-family:'IBM Plex Sans',sans-serif;o
 export default function Landing() {
   const [openFaq, setOpenFaq] = useState(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState(null); // tier string while loading
+  const [checkoutError, setCheckoutError] = useState("");
+
+  async function handleCheckout(tier) {
+    if (tier === "agency") {
+      window.location.href = "mailto:hello@flowdesk.app?subject=Agency Plan Inquiry";
+      return;
+    }
+    setCheckoutLoading(tier);
+    setCheckoutError("");
+    try {
+      const res = await fetch("/api/stripe/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ priceTier: tier }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        // Stripe not configured yet — fall back to contact
+        setCheckoutError(data.error || "Checkout unavailable. Please contact us to sign up.");
+      }
+    } catch {
+      setCheckoutError("Connection error. Please try again.");
+    }
+    setCheckoutLoading(null);
+  }
 
   return (
     <>
@@ -140,14 +171,14 @@ export default function Landing() {
       <nav className="nav">
         <div className="logo">
           <svg width="125" height="38" viewBox="0 0 400 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <defs><linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#F0B429"/><stop offset="100%" stop-color="#C49020"/></linearGradient></defs>
+            <defs><linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor="#F0B429"/><stop offset="100%" stopColor="#C49020"/></linearGradient></defs>
             <rect x="0" y="0" width="60" height="10" rx="3" fill="url(#g2)"/>
             <rect x="8" y="18" width="44" height="10" rx="3" fill="url(#g2)" opacity="0.85"/>
             <rect x="16" y="36" width="28" height="10" rx="3" fill="url(#g2)" opacity="0.7"/>
             <polygon points="22,52 38,52 46,70 14,70" fill="url(#g2)" opacity="0.6"/>
             <rect x="14" y="64" width="32" height="10" rx="8" fill="url(#g2)" opacity="0.5"/>
-            <text x="115" y="58" font-family="Georgia,serif" font-size="44" font-weight="700" fill="#F0EAD6" letter-spacing="-0.5">Flow</text>
-            <text x="115" y="90" font-family="Arial,sans-serif" font-size="20" font-weight="500" fill="#8A8470" letter-spacing="3.5">DESK</text>
+            <text x="115" y="58" fontFamily="Georgia,serif" fontSize="44" fontWeight="700" fill="#F0EAD6" letterSpacing="-0.5">Flow</text>
+            <text x="115" y="90" fontFamily="Arial,sans-serif" fontSize="20" fontWeight="500" fill="#8A8470" letterSpacing="3.5">DESK</text>
             <circle cx="225" cy="50" r="3" fill="#F0B429"/>
           </svg>
           <sub>Lead Engine</sub>
@@ -222,6 +253,11 @@ export default function Landing() {
         <div className="section-tag">Simple Pricing</div>
         <h2 className="section-hd">One flat rate. No surprises.</h2>
         <p className="section-sub">Website build, AI phone system, CRM, booking, follow-ups — all included. Month-to-month. Cancel anytime.</p>
+        {checkoutError && (
+          <div style={{maxWidth:480,margin:"0 auto 24px",background:"rgba(224,90,90,.08)",border:"1px solid rgba(224,90,90,.25)",borderRadius:10,padding:"12px 16px",fontSize:"0.84rem",color:"#E05A5A",textAlign:"center"}}>
+            {checkoutError} — <a href="mailto:hello@flowdesk.app" style={{color:"#E05A5A"}}>email us to sign up</a>
+          </div>
+        )}
         <div className="pricing-grid">
           {PRICING.map((p,i) => (
             <div key={i} className={`p-card ${p.popular?"popular":""}`}>
@@ -230,44 +266,9 @@ export default function Landing() {
               <div className="p-price">{p.price}<sub>/mo</sub></div>
               <div className="p-desc">{p.desc}</div>
               <ul className="p-features">{p.features.map((f,j) => <li key={j}>{f}</li>)}</ul>
-              <a className={`btn ${p.popular?"btn-g":"btn-o"}`} href="/login">{p.cta}</a>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* FAQ */}
-      <section className="section" id="faq">
-        <div className="section-tag">Questions?</div>
-        <h2 className="section-hd">Frequently Asked Questions</h2>
-        <p className="section-sub">Everything you need to know before signing up.</p>
-        <div className="faq-grid">
-          {FAQ.map((item,i) => (
-            <div key={i}>
-              <div className={`faq-q ${openFaq===i?"open":""}`} onClick={() => setOpenFaq(openFaq===i ? null : i)}>
-                {item.q}
-              </div>
-              <div className="faq-a" style={{display:openFaq===i?"block":"none"}}>{item.a}</div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="cta-section">
-        <h2>Ready to stop missing leads?</h2>
-        <p>Get your website + AI phone system in one week. First 5 customers get setup fees waived.</p>
-        <div style={{display:"flex",gap:14,justifyContent:"center",flexWrap:"wrap"}}>
-          <a className="btn btn-g" href="#pricing">Choose Your Plan →</a>
-          <a className="btn btn-o" href="#faq">Still Have Questions?</a>
-        </div>
-      </section>
-
-      <footer className="footer">
-        <p>FlowDesk — Lead Engine for Local Service Businesses<br/>
-        Built for contractors, roofers, plumbers, electricians, landscapers, and every business that lives on the phone.<br/>
-        <a href="/dashboard">Dashboard</a> · <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a></p>
-      </footer>
-    </>
-  );
-}
+              <button
+                className={`btn ${p.popular?"btn-g":"btn-o"}`}
+                onClick={() => handleCheckout(p.tier)}
+                disabled={checkoutLoading !== null}
+              >
+                {checkoutLoading === p.tier ? "

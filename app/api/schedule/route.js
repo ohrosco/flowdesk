@@ -1,18 +1,23 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
+import { getTenantId } from "@/lib/tenant";
 import { sendSMS } from "@/lib/twilio";
 import { sendAppointmentConfirmation } from "@/lib/resend";
 import { createCalendarEvent, updateCalendarEvent, deleteCalendarEvent } from "@/lib/google-calendar";
 
 const DEFAULT_TENANT = process.env.NEXT_PUBLIC_BUSINESS_NAME || "FlowDesk";
+const DEFAULT_TENANT_ID = "00000000-0000-0000-0000-000000000001";
 
 // ─── GET /api/schedule ────────────────────────────────────────────────────────
 export async function GET(req) {
+  const tenantId = getTenantId(req) || DEFAULT_TENANT_ID;
   const db = supabaseAdmin();
   const { searchParams } = new URL(req.url);
   const month = searchParams.get("month");
 
-  let query = db.from("appointments").select("*").order("appt_date").order("appt_time");
+  let query = db.from("appointments").select("*")
+    .eq("tenant_id", tenantId)
+    .order("appt_date").order("appt_time");
   if (month) query = query.gte("appt_date", `${month}-01`).lt("appt_date", nextMonth(month));
 
   const { data, error } = await query;
@@ -22,6 +27,7 @@ export async function GET(req) {
 
 // ─── POST /api/schedule ───────────────────────────────────────────────────────
 export async function POST(req) {
+  const tenantId = getTenantId(req) || DEFAULT_TENANT_ID;
   const body = await req.json();
   const { id, lead_id, lead_name, lead_phone, lead_email, appt_type, appt_date, appt_time, notes, reminder_24h, reminder_2h, action, tenant } = body;
 
@@ -70,7 +76,7 @@ export async function POST(req) {
   const { data: appt, error } = await db
     .from("appointments")
     .insert({
-      lead_id, lead_name, lead_phone,
+      tenant_id: tenantId, lead_id, lead_name, lead_phone,
       appt_type: appt_type || "estimate",
       appt_date, appt_time, notes,
       reminder_24h: reminder_24h !== false,
@@ -114,6 +120,7 @@ export async function POST(req) {
 
 // ─── DELETE /api/schedule ─────────────────────────────────────────────────────
 export async function DELETE(req) {
+  const tenantId = getTenantId(req) || DEFAULT_TENANT_ID;
   const { searchParams } = new URL(req.url);
   const id = searchParams.get("id");
   const tenant = searchParams.get("tenant");
@@ -122,17 +129,7 @@ export async function DELETE(req) {
   const tenantName = tenant || DEFAULT_TENANT;
   const db = supabaseAdmin();
 
-  const { data: existing } = await db.from("appointments").select("google_calendar_event_id").eq("id", id).single();
+  const { data: existing } = await db.from("appointments").select("google_calendar_event_id")
+    .eq("id", id).eq("tenant_id", tenantId).single();
   if (existing?.google_calendar_event_id) {
-    await deleteCalendarEvent(tenantName, existing.google_calendar_event_id);
-  }
-
-  const { error } = await db.from("appointments").delete().eq("id", id);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ ok: true });
-}
-
-function nextMonth(month) {
-  const [y, m] = month.split("-").map(Number);
-  return m === 12 ? `${y + 1}-01` : `${y}-${String(m + 1).padStart(2, "0")}`;
-}
+    await deleteCalendarEvent(tenantName, existing.google_calendar
