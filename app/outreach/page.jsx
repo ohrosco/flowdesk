@@ -209,7 +209,7 @@ function OutreachTracker() {
           <div className="stat"><div className="stat-n">{Math.round(called / BUSINESSES.length * 100)||0}%</div><div className="stat-l">Progress</div></div>
         </div>
 
-        <div className="tip-box"><strong>🎯 Today's Target:</strong> Call 8 businesses — start with Denham Springs. {SCRIPT}</div>
+        <div className="tip-box"><strong>🎯 Today&apos;s Target:</strong> Call 8 businesses — start with Denham Springs. {SCRIPT}</div>
 
         <div className="toolbar">
           <input className="search-box" placeholder="Search business..." value={search} onChange={e => setSearch(e.target.value)} />
@@ -256,7 +256,7 @@ function OutreachTracker() {
               {logs[active[0]] && (
                 <div style={{fontSize:"0.75rem",color:T.muted,marginBottom:10,background:T.surface,padding:"8px 10px",borderRadius:8}}>
                   Last call: {new Date(logs[active[0]].timestamp).toLocaleString()} — {OUTCOMES.find(o=>o.id===logs[active[0]].outcome)?.label||logs[active[0]].outcome}
-                  {logs[active[0]].notes && <div style={{marginTop:4,fontStyle:"italic"}}>"{logs[active[0]].notes}"</div>}
+                  {logs[active[0]].notes && <div style={{marginTop:4,fontStyle:"italic"}}>&quot;{logs[active[0]].notes}&quot;</div>}
                 </div>
               )}
               <div className="field"><label>Outcome</label></div>

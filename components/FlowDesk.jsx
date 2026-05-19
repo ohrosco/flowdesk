@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 // ─── THEME ────────────────────────────────────────────────────────────────────
 const T = {
@@ -121,6 +121,28 @@ html,body{height:100%;background:${T.bg};font-family:'IBM Plex Sans',sans-serif;
 @keyframes spin{to{transform:rotate(360deg)}}
 .flex{display:flex}.aic{align-items:center}.jcb{justify-content:space-between}.gap8{gap:8px}.gap12{gap:12px}
 .mb8{margin-bottom:8px}.mb12{margin-bottom:12px}.mb16{margin-bottom:16px}.mb20{margin-bottom:20px}.mb24{margin-bottom:24px}
+
+/* ─── ONBOARDING WIZARD ──────────────────────────────────────────────────── */
+.ow{min-height:100vh;display:flex;flex-direction:column;background:${T.bg};position:relative}
+.ow::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");opacity:0.6}
+.ow-hdr{padding:20px 28px;border-bottom:1px solid ${T.border};display:flex;align-items:center;justify-content:center;background:${T.surface};position:relative;z-index:1}
+.ow-body{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 20px;position:relative;z-index:1}
+.ow-card{background:${T.card};border:1px solid ${T.border};border-radius:20px;padding:36px;width:100%;max-width:540px;animation:su .3s ease}
+.ow-step-indicator{display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:32px}
+.ow-step-circle{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.78rem;font-weight:700;transition:all .3s}
+.ow-step-filled{background:${T.gold};color:#111;border:2px solid ${T.gold}}
+.ow-step-current{background:${T.goldGlow};color:${T.gold};border:2px solid ${T.gold}}
+.ow-step-upcoming{background:${T.surface};color:${T.muted};border:2px solid ${T.border}}
+.ow-step-line{width:48px;height:2px;transition:background .3s}
+.ow-step-line-filled{background:${T.gold}}
+.ow-step-line-upcoming{background:${T.border}}
+.ow-title{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:${T.gold};margin-bottom:6px;text-align:center}
+.ow-desc{font-size:0.84rem;color:${T.muted};text-align:center;margin-bottom:28px;line-height:1.55}
+.ow-nav{display:flex;align-items:center;justify-content:space-between;margin-top:28px;gap:12px}
+.ow-success{text-align:center;padding:20px 0}
+.ow-success-icon{font-size:3.5rem;margin-bottom:16px;animation:bo 1s ease}
+.ow-success-title{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:${T.gold};margin-bottom:8px}
+.ow-success-desc{font-size:0.9rem;color:${T.muted};line-height:1.6;margin-bottom:24px}
 `;
 
 const TIMES = ["8:00 AM","9:00 AM","10:00 AM","11:00 AM","12:00 PM","1:00 PM","2:00 PM","3:00 PM","4:00 PM","5:00 PM"];
@@ -169,7 +191,7 @@ const CALL_SCRIPT=[
 
 // ─── TOAST ────────────────────────────────────────────────────────────────────
 function Toast({msg,type="ok",onDone}){
-  useEffect(()=>{const t=setTimeout(onDone,3500);return()=>clearTimeout(t)},[]);
+  useEffect(()=>{const t=setTimeout(onDone,3500);return()=>clearTimeout(t)},[onDone]);
   return <div className={`toast ${type==="err"?"err":""}`}>{type==="ok"?"✅":"❌"} {msg}</div>;
 }
 
@@ -262,7 +284,7 @@ function Dashboard({leads,appts,onTab}){
           <button className="btn btn-o btn-s" style={{marginTop:12,width:"100%"}} onClick={()=>onTab("leads")}>View All →</button>
         </div>
         <div className="card">
-          <div className="card-title">📅 Today's Appointments</div>
+          <div className="card-title">📅 Today&apos;s Appointments</div>
           {todayAppts.length===0&&<div style={{fontSize:"0.82rem",color:T.muted,padding:"20px 0",textAlign:"center"}}>No appointments today.</div>}
           {todayAppts.map(a=>(
             <div key={a.id} className="lr">
@@ -953,7 +975,7 @@ function SettingsView({tenant}){
                     <span style={{fontSize:"1.2rem"}}>🔌</span>
                     <div>
                       <div style={{fontWeight:600,fontSize:"0.9rem"}}>Not connected</div>
-                      <div style={{fontSize:"0.78rem",color:T.muted}}>Bookings won't appear on Google Calendar</div>
+                      <div style={{fontSize:"0.78rem",color:T.muted}}>Bookings won&apos;t appear on Google Calendar</div>
                     </div>
                   </div>
                 </div>
@@ -961,13 +983,207 @@ function SettingsView({tenant}){
                   🔗 Connect Google Calendar
                 </a>
                 <p style={{fontSize:"0.72rem",color:T.muted,marginTop:12,lineHeight:1.6}}>
-                  You'll be redirected to Google to authorize access. Only <strong>calendar</strong> read/write permissions are requested. We store your refresh token securely and never access your personal data.
+                  You&apos;ll be redirected to Google to authorize access. Only <strong>calendar</strong> read/write permissions are requested. We store your refresh token securely and never access your personal data.
                 </p>
               </div>
             )}
           </div>
         </>
       )}
+    </div>
+  );
+}
+
+// ─── ONBOARDING WIZARD ─────────────────────────────────────────────────────────
+function OnboardingWizard({onComplete}){
+  const [step,setStep]=useState(0);
+  const [saving,setSaving]=useState(false);
+  const [done,setDone]=useState(false);
+
+  const EMPTY={
+    business_name:"", business_phone:"", business_address:"",
+    open_hour:8, close_hour:18, timezone:"America/Chicago",
+    hours_text:"Monday through Friday, 8 AM to 6 PM",
+    emergency_phone:"", booking_url:"",
+  };
+  const [form,setForm]=useState(EMPTY);
+
+  function set(field,value){setForm(p=>({...p,[field]:value}))}
+
+  const STEPS=[
+    {icon:"🏢",title:"Tell us about your business",desc:"Let's get your business set up in FlowDesk."},
+    {icon:"⏰",title:"Set your hours",desc:"When are you open for business?"},
+    {icon:"🆘",title:"Emergency & booking",desc:"Last things — emergency contact and booking."},
+  ];
+
+  function validStep(s){
+    if(s===0) return form.business_name.trim() && form.business_phone.trim();
+    if(s===1) return true;
+    if(s===2) return true;
+    return false;
+  }
+
+  async function handleFinish(){
+    setSaving(true);
+    const res=await fetch("/api/settings",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        business_name:    form.business_name,
+        business_phone:   form.business_phone,
+        business_address: form.business_address,
+        open_hour:        Number(form.open_hour),
+        close_hour:       Number(form.close_hour),
+        timezone:         form.timezone,
+        hours_text:       form.hours_text,
+        emergency_phone:  form.emergency_phone,
+        booking_url:      form.booking_url,
+      }),
+    }).catch(()=>null);
+    setSaving(false);
+    if(res?.ok){
+      setDone(true);
+      setTimeout(()=>{onComplete()},1800);
+    }
+  }
+
+  const HOUR_OPTS=Array.from({length:24},(_,i)=>({
+    value:i,
+    label:i===0?"12 AM":i<12?`${i} AM`:i===12?"12 PM":`${i-12} PM`,
+  }));
+
+  return(
+    <div className="ow">
+      <style>{CSS}</style>
+      <div className="ow-hdr">
+        <div className="logo">
+          <svg width="110" height="32" viewBox="0 0 400 120" fill="none" xmlns="http://www.w3.org/2000/svg" style={{verticalAlign:"middle"}}>
+            <defs><linearGradient id="gd" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#F0B429"/><stop offset="100%" stop-color="#C49020"/></linearGradient></defs>
+            <rect x="0" y="0" width="60" height="10" rx="3" fill="url(#gd)"/>
+            <rect x="8" y="18" width="44" height="10" rx="3" fill="url(#gd)" opacity="0.85"/>
+            <rect x="16" y="36" width="28" height="10" rx="3" fill="url(#gd)" opacity="0.7"/>
+            <polygon points="22,52 38,52 46,70 14,70" fill="url(#gd)" opacity="0.6"/>
+            <rect x="0.6"/>
+            <rect x="14" y="64" width="32" height="10" rx="8" fill="url(#gd)" opacity="0.5"/>
+            <text x="115" y="58" font-family="Georgia,serif" font-size="44" font-weight="700" fill="#F0EAD6" letter-spacing="-0.5">Flow</text>
+            <text x="115" y="90" font-family="Arial,sans-serif" font-size="20" font-weight="500" fill="#8A8470" letter-spacing="3.5">DESK</text>
+            <circle cx="225" cy="50" r="3" fill="#F0B429"/>
+          </svg>
+          <sub>Lead Engine</sub>
+        </div>
+      </div>
+      <div className="ow-body">
+        <div className="ow-card">
+          {done ? (
+            <div className="ow-success">
+              <div className="ow-success-icon">🎉</div>
+              <div className="ow-success-title">You&apos;re all set!</div>
+              <div className="ow-success-desc">Your business profile has been created.<br/>Taking you to the dashboard…</div>
+              <div className="ail" style={{justifyContent:"center"}}><span/><span/><span/></div>
+            </div>
+          ) : (
+            <>
+              {/* Step Indicator */}
+              <div className="ow-step-indicator">
+                {[0,1,2].map(i=>(
+                  <React.Fragment key={i}>
+                    {i>0 && (
+                      <div className={`ow-step-line ${i<=step?"ow-step-line-filled":"ow-step-line-upcoming"}`}/>
+                    )}
+                    <div className={`ow-step-circle ${i<step?"ow-step-filled":i===step?"ow-step-current":"ow-step-upcoming"}`}>
+                      {i<step?"✓":i+1}
+                    </div>
+                  </React.Fragment>
+                ))}
+              </div>
+
+              {/* Step Title */}
+              <div className="ow-title">{STEPS[step].icon} {STEPS[step].title}</div>
+              <div className="ow-desc">{STEPS[step].desc}</div>
+
+              {/* Step 1: Business Info */}
+              {step===0&&(
+                <div className="fg">
+                  <div className="field s2">
+                    <label>Business Name *</label>
+                    <input placeholder="FlowDesk Home Services" value={form.business_name} onChange={e=>set("business_name",e.target.value)}/>
+                    {!form.business_name.trim()&&<span style={{fontSize:"0.7rem",color:T.red}}>Required</span>}
+                  </div>
+                  <div className="field">
+                    <label>Business Phone *</label>
+                    <input placeholder="+15551234567" value={form.business_phone} onChange={e=>set("business_phone",e.target.value)}/>
+                    {!form.business_phone.trim()&&<span style={{fontSize:"0.7rem",color:T.red}}>Required</span>}
+                  </div>
+                  <div className="field">
+                    <label>Business Address</label>
+                    <input placeholder="123 Main St, City, ST 12345" value={form.business_address} onChange={e=>set("business_address",e.target.value)}/>
+                  </div>
+                </div>
+              )}
+
+              {/* Step 2: Hours */}
+              {step===1&&(
+                <div className="fg">
+                  <div className="field">
+                    <label>Open Hour</label>
+                    <select value={form.open_hour} onChange={e=>set("open_hour",Number(e.target.value))}>
+                      {HOUR_OPTS.map(h=><option key={h.value} value={h.value}>{h.label}</option>)}
+                    </select>
+                  </div>
+                  <div className="field">
+                    <label>Close Hour</label>
+                    <select value={form.close_hour} onChange={e=>set("close_hour",Number(e.target.value))}>
+                      {HOUR_OPTS.map(h=><option key={h.value} value={h.value}>{h.label}</option>)}
+                    </select>
+                  </div>
+                  <div className="field">
+                    <label>Timezone</label>
+                    <select value={form.timezone} onChange={e=>set("timezone",e.target.value)}>
+                      {US_TIMEZONES.map(tz=><option key={tz.value} value={tz.value}>{tz.label}</option>)}
+                    </select>
+                  </div>
+                  <div className="field">
+                    <label>Hours Text</label>
+                    <input placeholder="Monday through Friday, 8 AM to 6 PM" value={form.hours_text} onChange={e=>set("hours_text",e.target.value)}/>
+                  </div>
+                </div>
+              )}
+
+              {/* Step 3: Emergency & Booking */}
+              {step===2&&(
+                <div className="fg">
+                  <div className="field s2">
+                    <label>Emergency Phone</label>
+                    <input placeholder="+15551234567" value={form.emergency_phone} onChange={e=>set("emergency_phone",e.target.value)}/>
+                  </div>
+                  <div className="field s2">
+                    <label>Booking URL</label>
+                    <input placeholder="https://yourdomain.com/book" value={form.booking_url} onChange={e=>set("booking_url",e.target.value)}/>
+                  </div>
+                </div>
+              )}
+
+              {/* Navigation */}
+              <div className="ow-nav">
+                {step>0 ? (
+                  <button className="btn btn-o" onClick={()=>setStep(s=>s-1)}>← Back</button>
+                ) : (
+                  <div/>
+                )}
+                {step<2 ? (
+                  <button className="btn btn-g" disabled={!validStep(step)} onClick={()=>setStep(s=>s+1)}>
+                    Next →
+                  </button>
+                ) : (
+                  <button className="btn btn-g" disabled={saving} onClick={handleFinish}>
+                    {saving ? <><span className="spin">◌</span> Saving…</> : "✅ Finish Setup"}
+                  </button>
+                )}
+              </div>
+            </>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
@@ -979,21 +1195,43 @@ export default function FlowDesk(){
   const [appts,setAppts]=useState([]);
   const [aiLead,setAiLead]=useState(null);
   const [loadingData,setLoadingData]=useState(true);
+  const [showOnboarding,setShowOnboarding]=useState(null); // null=loading, true=show wizard, false=show dashboard
   const tenant=process.env.NEXT_PUBLIC_BUSINESS_NAME||"FlowDesk";
 
+  // Check onboarding state on mount
   useEffect(()=>{
-    async function load(){
-      setLoadingData(true);
-      const [lRes,aRes]=await Promise.all([
-        fetch("/api/leads").catch(()=>null),
-        fetch("/api/schedule").catch(()=>null),
-      ]);
-      if(lRes?.ok) setLeads(await lRes.json());
-      if(aRes?.ok) setAppts(await aRes.json());
-      setLoadingData(false);
+    async function checkOnboarding(){
+      const res=await fetch("/api/settings").catch(()=>null);
+      if(res?.ok){
+        const data=await res.json();
+        if(data && data.business_name && data.business_name.trim()){
+          setShowOnboarding(false);
+        } else {
+          setShowOnboarding(true);
+        }
+      } else {
+        // If we can't reach settings API, show the dashboard
+        setShowOnboarding(false);
+      }
     }
-    load();
+    checkOnboarding();
   },[]);
+
+  useEffect(()=>{
+    if(showOnboarding===false){
+      async function load(){
+        setLoadingData(true);
+        const [lRes,aRes]=await Promise.all([
+          fetch("/api/leads").catch(()=>null),
+          fetch("/api/schedule").catch(()=>null),
+        ]);
+        if(lRes?.ok) setLeads(await lRes.json());
+        if(aRes?.ok) setAppts(await aRes.json());
+        setLoadingData(false);
+      }
+      load();
+    }
+  },[showOnboarding]);
 
   const TABS=[
     {id:"dash",     label:"Dashboard",    icon:"◈"},
@@ -1006,43 +1244,67 @@ export default function FlowDesk(){
   return(
     <>
       <style>{CSS}</style>
-      {aiLead&&<AiModal lead={aiLead} onClose={()=>setAiLead(null)}/>}
-      <div className="app">
-        <div className="hdr z1">
-          <div className="logo">FlowDesk<sub>Lead & Schedule System</sub></div>
-          <div className="flex aic gap12">
-            <a href="/outreach" className="btn btn-o btn-s" style={{fontSize:"0.7rem",textDecoration:"none"}}>📞 Outreach</a>
-            <button className="btn btn-o btn-s" style={{fontSize:"0.7rem",cursor:"pointer"}} onClick={async () => { await fetch("/api/auth/logout"); window.location.href = "/login"; }}>🚪 Logout</button>
-            <div style={{textAlign:"right"}}>
-              <div className="hdr-stat-num">{leads.length}</div>
-              <div className="hdr-stat-lbl">Active Leads</div>
+      {showOnboarding===null&&(
+        <div style={{display:"flex",alignItems:"center",justifyContent:"center",minHeight:"100vh",background:T.bg,flexDirection:"column",gap:14}}>
+          <div className="logo" style={{fontSize:"1.5rem"}}>FlowDesk<sub style={{textAlign:"center"}}>Loading…</sub></div>
+        </div>
+      )}
+      {showOnboarding===true&&(
+        <OnboardingWizard onComplete={()=>setShowOnboarding(false)}/>
+      )}
+      {showOnboarding===false&&(
+        <>
+          {aiLead&&<AiModal lead={aiLead} onClose={()=>setAiLead(null)}/>}
+          <div className="app">
+            <div className="hdr z1">
+              <div className="logo">
+                <svg width="100" height="28" viewBox="0 0 400 120" fill="none" xmlns="http://www.w3.org/2000/svg" style={{verticalAlign:"middle"}}>
+                  <defs><linearGradient id="gh" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#F0B429"/><stop offset="100%" stop-color="#C49020"/></linearGradient></defs>
+                  <rect x="0" y="0" width="60" height="10" rx="3" fill="url(#gh)"/>
+                  <rect x="8" y="18" width="44" height="10" rx="3" fill="url(#gh)" opacity="0.85"/>
+                  <rect x="16" y="36" width="28" height="10" rx="3" fill="url(#gh)" opacity="0.7"/>
+                  <polygon points="22,52 38,52 46,70 14,70" fill="url(#gh)" opacity="0.6"/>
+                  <rect x="14" y="64" width="32" height="10" rx="8" fill="url(#gh)" opacity="0.5"/>
+                  <text x="115" y="58" font-family="Georgia,serif" font-size="44" font-weight="700" fill="#F0EAD6" letter-spacing="-0.5">Flow</text>
+                  <text x="115" y="90" font-family="Arial,sans-serif" font-size="20" font-weight="500" fill="#8A8470" letter-spacing="3.5">DESK</text>
+                  <circle cx="225" cy="50" r="3" fill="#F0B429"/>
+                </svg>
+              </div>
+              <div className="flex aic gap12">
+                <a href="/outreach" className="btn btn-o btn-s" style={{fontSize:"0.7rem",textDecoration:"none"}}>📞 Outreach</a>
+                <button className="btn btn-o btn-s" style={{fontSize:"0.7rem",cursor:"pointer"}} onClick={async () => { await fetch("/api/auth/logout"); window.location.href = "/login"; }}>🚪 Logout</button>
+                <div style={{textAlign:"right"}}>
+                  <div className="hdr-stat-num">{leads.length}</div>
+                  <div className="hdr-stat-lbl">Active Leads</div>
+                </div>
+                <div className="pulse-dot"/>
+              </div>
             </div>
-            <div className="pulse-dot"/>
+            <div className="nav z1">
+              {TABS.map(t=>(
+                <button key={t.id} className={`nav-btn ${tab===t.id?"on":""}`} onClick={()=>setTab(t.id)}>
+                  <span>{t.icon}</span>{t.label}
+                </button>
+              ))}
+            </div>
+            <div className="main z1">
+              {loadingData?(
+                <div style={{display:"flex",alignItems:"center",justifyContent:"center",height:300,gap:10,color:T.muted}}>
+                  <span className="spin" style={{fontSize:"1.2rem"}}>◌</span> Loading…
+                </div>
+              ):(
+                <>
+                  {tab==="dash"     &&<Dashboard leads={leads} appts={appts} onTab={setTab}/>}
+                  {tab==="leads"    &&<LeadsView leads={leads} setLeads={setLeads} setAiLead={setAiLead}/>}
+                  {tab==="fu"       &&<FollowUpView leads={leads}/>}
+                  {tab==="sched"    &&<ScheduleView leads={leads} appts={appts} setAppts={setAppts}/>}
+                  {tab==="settings" &&<SettingsView tenant={tenant}/>}
+                </>
+              )}
+            </div>
           </div>
-        </div>
-        <div className="nav z1">
-          {TABS.map(t=>(
-            <button key={t.id} className={`nav-btn ${tab===t.id?"on":""}`} onClick={()=>setTab(t.id)}>
-              <span>{t.icon}</span>{t.label}
-            </button>
-          ))}
-        </div>
-        <div className="main z1">
-          {loadingData?(
-            <div style={{display:"flex",alignItems:"center",justifyContent:"center",height:300,gap:10,color:T.muted}}>
-              <span className="spin" style={{fontSize:"1.2rem"}}>◌</span> Loading…
-            </div>
-          ):(
-            <>
-              {tab==="dash"     &&<Dashboard leads={leads} appts={appts} onTab={setTab}/>}
-              {tab==="leads"    &&<LeadsView leads={leads} setLeads={setLeads} setAiLead={setAiLead}/>}
-              {tab==="fu"       &&<FollowUpView leads={leads}/>}
-              {tab==="sched"    &&<ScheduleView leads={leads} appts={appts} setAppts={setAppts}/>}
-              {tab==="settings" &&<SettingsView tenant={tenant}/>}
-            </>
-          )}
-        </div>
-      </div>
+        </>
+      )}
     </>
   );
 }

@@ -10,6 +10,21 @@ const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://flowdesk-ruby.vercel
 
 export async function POST(req) {
   try {
+    // ─── Twilio Signature Validation ─────────────────────────────────────
+    const rawBody = await req.text();
+    const signature = req.headers.get("x-twilio-signature");
+    if (signature && process.env.TWILIO_AUTH_TOKEN) {
+      const isValid = twilio.validateRequest(
+        process.env.TWILIO_AUTH_TOKEN,
+        signature,
+        `${process.env.NEXT_PUBLIC_APP_URL}/api/voice/lead-capture`,
+        Object.fromEntries(new URLSearchParams(rawBody))
+      );
+      if (!isValid) {
+        return new NextResponse("Invalid signature", { status: 403 });
+      }
+    }
+    req.text = () => Promise.resolve(rawBody);
     const text = await req.text();
     const params = new URLSearchParams(text);
     const zipCode = params.get("Digits") || "";

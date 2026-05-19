@@ -174,10 +174,10 @@ export default function BookPage() {
           <div className="card">
             <div className="confirm">
               <div className="icon">✅</div>
-              <h2>You're Booked!</h2>
+              <h2>You&apos;re Booked!</h2>
               <p>Your <span className="detail">{form.service || "estimate"}</span> appointment is confirmed for <span className="detail">{MONTHS[month]} {selDay}</span> at <span className="detail">{selTime}</span>.</p>
               <p>A confirmation text has been sent to {form.phone}.</p>
-              <p style={{marginTop:20,fontSize:"0.82rem"}}>We'll send a reminder 24 hours before your appointment.</p>
+              <p style={{marginTop:20,fontSize:"0.82rem"}}>We&apos;ll send a reminder 24 hours before your appointment.</p>
               <button className="btn btn-g" style={{marginTop:24}} onClick={() => { setStep(1); setSelDay(null); setSelTime(null); setForm({name:"",phone:"",email:"",service:""}); setDone(false); }}>Book Another →</button>
             </div>
           </div>

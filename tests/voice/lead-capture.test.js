@@ -8,6 +8,7 @@ function mockRequest(body, searchParams = {}) {
     url: url.href,
     nextUrl: url,
     json: () => Promise.resolve(body ? JSON.parse(body) : {}),
+    headers: { get: () => null },
   };
 }
 
@@ -69,6 +70,7 @@ describe('POST /api/voice/lead-capture', () => {
     const badReq = {
       text: () => Promise.reject(new Error('crash')),
       nextUrl: new URL('https://flowdesk-test.vercel.app/api/voice/lead-capture'),
+      headers: { get: () => null },
     };
     const res = await POST(badReq);
     const xml = await res.text();

@@ -11,6 +11,7 @@ function mockRequest(body = '', searchParams = {}) {
     url: url.href,
     nextUrl: url,
     json: () => Promise.resolve(body ? JSON.parse(body) : {}),
+    headers: { get: () => null },
   };
   return req;
 }

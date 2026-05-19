@@ -8,6 +8,7 @@ function mockRequest(body, searchParams = {}) {
     url: url.href,
     nextUrl: url,
     json: () => Promise.resolve(body ? JSON.parse(body) : {}),
+    headers: { get: () => null },
   };
 }
 
@@ -96,6 +97,7 @@ describe('POST /api/voice/menu', () => {
     const badReq = {
       text: () => Promise.reject(new Error('parse error')),
       nextUrl: new URL('https://flowdesk-test.vercel.app/api/voice/menu'),
+      headers: { get: () => null },
     };
     const res = await POST(badReq);
     const xml = await res.text();

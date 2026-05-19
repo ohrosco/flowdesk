@@ -138,12 +138,27 @@ export default function Landing() {
 
       {/* NAV */}
       <nav className="nav">
-        <div className="logo">FlowDesk<sub>Lead Engine</sub></div>
+        <div className="logo">
+          <svg width="125" height="38" viewBox="0 0 400 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs><linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#F0B429"/><stop offset="100%" stop-color="#C49020"/></linearGradient></defs>
+            <rect x="0" y="0" width="60" height="10" rx="3" fill="url(#g2)"/>
+            <rect x="8" y="18" width="44" height="10" rx="3" fill="url(#g2)" opacity="0.85"/>
+            <rect x="16" y="36" width="28" height="10" rx="3" fill="url(#g2)" opacity="0.7"/>
+            <polygon points="22,52 38,52 46,70 14,70" fill="url(#g2)" opacity="0.6"/>
+            <rect x="14" y="64" width="32" height="10" rx="8" fill="url(#g2)" opacity="0.5"/>
+            <text x="115" y="58" font-family="Georgia,serif" font-size="44" font-weight="700" fill="#F0EAD6" letter-spacing="-0.5">Flow</text>
+            <text x="115" y="90" font-family="Arial,sans-serif" font-size="20" font-weight="500" fill="#8A8470" letter-spacing="3.5">DESK</text>
+            <circle cx="225" cy="50" r="3" fill="#F0B429"/>
+          </svg>
+          <sub>Lead Engine</sub>
+        </div>
         <div className="nav-links" style={{display:mobileOpen?"flex":"none"}}>
           <a href="#features">Features</a>
           <a href="#pricing">Pricing</a>
           <a href="#faq">FAQ</a>
           <a href="/book">Book Now</a>
+          <a href="/privacy">Privacy</a>
+          <a href="/terms">Terms</a>
           <a className="btn btn-g btn-s" style={{padding:"8px 18px"}} href="/dashboard">Dashboard →</a>
         </div>
         <div style={{display:"flex",gap:12,alignItems:"center"}}>
@@ -156,7 +171,7 @@ export default function Landing() {
       <section className="hero">
         <div className="hero-badge"><span>NEW</span> Your website + AI phone system — one flat price</div>
         <h1>A website + AI that<br/>answers your calls<br/>and <span>fills your schedule.</span></h1>
-        <p>We build you a professional website. We set up an AI phone system that answers every call, captures leads, and books jobs. No website? No problem. That's the whole point.</p>
+        <p>We build you a professional website. We set up an AI phone system that answers every call, captures leads, and books jobs. No website? No problem. That&apos;s the whole point.</p>
         <div className="hero-actions">
           <a className="btn btn-g" href="#pricing">See Plans & Pricing</a>
           <a className="btn btn-w" href="#how">How It Works</a>
@@ -196,7 +211,7 @@ export default function Landing() {
           <div className="step"><div className="step-num">3</div><div className="step-title">Leads Start Flowing</div><div className="step-desc">Calls get answered. Forms get submitted. Follow-ups go out. You just show up and do the work.</div></div>
         </div>
         <div className="quote">
-          <div className="quote-text">"I was paying $400/mo for a basic website and still missing calls. FlowDesk built me a better site AND answers my phones for less than I was paying for just the website."</div>
+          <div className="quote-text">&quot;I was paying $400/mo for a basic website and still missing calls. FlowDesk built me a better site AND answers my phones for less than I was paying for just the website.&quot;</div>
           <div className="quote-author">— Mike R.</div>
           <div className="quote-role">Roofing Contractor, Denham Springs</div>
         </div>
@@ -251,7 +266,7 @@ export default function Landing() {
       <footer className="footer">
         <p>FlowDesk — Lead Engine for Local Service Businesses<br/>
         Built for contractors, roofers, plumbers, electricians, landscapers, and every business that lives on the phone.<br/>
-        <a href="/dashboard">Dashboard</a></p>
+        <a href="/dashboard">Dashboard</a> · <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a></p>
       </footer>
     </>
   );

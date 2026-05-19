@@ -4,6 +4,22 @@ import twilio from "twilio";
 const VoiceResponse = twilio.twiml.VoiceResponse;
 
 export async function POST(req) {
+  // ─── Twilio Signature Validation ─────────────────────────────────────
+  const rawBody = await req.text();
+  const signature = req.headers.get("x-twilio-signature");
+  if (signature && process.env.TWILIO_AUTH_TOKEN) {
+    const isValid = twilio.validateRequest(
+      process.env.TWILIO_AUTH_TOKEN,
+      signature,
+      `${process.env.NEXT_PUBLIC_APP_URL}/api/voice/incoming`,
+      Object.fromEntries(new URLSearchParams(rawBody))
+    );
+    if (!isValid) {
+      return new NextResponse("Invalid signature", { status: 403 });
+    }
+  }
+  req.text = () => Promise.resolve(rawBody);
+
   const vr = new VoiceResponse();
 
   const openHour = parseInt(process.env.BUSINESS_OPEN_HOUR || "8", 10);
