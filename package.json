@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "npx jest",
+    "test:watch": "npx jest --watch"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.43.4",
@@ -20,7 +22,12 @@
     "twilio": "^5.1.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.29.0",
+    "@babel/preset-env": "^7.29.5",
+    "@babel/preset-react": "^7.28.5",
+    "babel-jest": "^30.4.1",
     "eslint": "^8",
-    "eslint-config-next": "14.2.3"
+    "eslint-config-next": "14.2.3",
+    "jest": "^30.4.2"
   }
 }

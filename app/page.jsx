@@ -215,7 +215,7 @@ export default function Landing() {
               <div className="p-price">{p.price}<sub>/mo</sub></div>
               <div className="p-desc">{p.desc}</div>
               <ul className="p-features">{p.features.map((f,j) => <li key={j}>{f}</li>)}</ul>
-              <a className={`btn ${p.popular?"btn-g":"btn-o"}`} href="#">{p.cta}</a>
+              <a className={`btn ${p.popular?"btn-g":"btn-o"}`} href="/login">{p.cta}</a>
             </div>
           ))}
         </div>

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import twilio from "twilio";
+import { supabaseAdmin } from "../../../../lib/supabase";
 
 const VoiceResponse = twilio.twiml.VoiceResponse;
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://flowdesk-ruby.vercel.app";
@@ -39,17 +40,45 @@ export async function POST(req) {
       });
     }
 
-    // Create lead in Supabase skipped until deployment (no @/ alias for deeper routes)
-    // SMS will collect remaining info
+    // Create lead in Supabase
+    let leadId = null;
+    try {
+      const db = supabaseAdmin();
+      const { data: lead, error } = await db
+        .from("leads")
+        .insert({
+          name: "Unknown (Caller)",
+          phone: callerNumber,
+          service: "Unknown",
+          source: "Phone Call",
+          notes: JSON.stringify({ zip: zipCode, source: "Phone Call: IVR" }),
+          status: "new",
+          stage: "New Lead",
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error("Supabase lead insert failed:", error.message);
+      } else {
+        leadId = lead.id;
+      }
+    } catch (supaErr) {
+      console.error("Supabase lead insert threw:", supaErr.message);
+    }
 
     // Send SMS to collect name and service details
+    const smsPayload = {
+      phone: callerNumber,
+      text: `Thanks for calling ${businessName}! Reply with your name and what service you need and we'll get you scheduled.`,
+    };
+    if (leadId) {
+      smsPayload.leadId = leadId;
+    }
     fetch(`${APP_URL}/api/voice/send-sms`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        phone: callerNumber,
-        text: `Thanks for calling ${businessName}! Reply with your name and what service you need and we'll get you scheduled.`,
-      }),
+      body: JSON.stringify(smsPayload),
     }).catch(() => {});
 
     vr.say(

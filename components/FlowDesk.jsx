@@ -745,77 +745,229 @@ function ScheduleView({leads,appts,setAppts}){
   );
 }
 
+// ─── TIMEZONES ─────────────────────────────────────────────────────────────────
+const US_TIMEZONES = [
+  { value: "America/New_York",    label: "Eastern (ET)" },
+  { value: "America/Chicago",     label: "Central (CT)" },
+  { value: "America/Denver",      label: "Mountain (MT)" },
+  { value: "America/Phoenix",     label: "Arizona (MST)" },
+  { value: "America/Los_Angeles", label: "Pacific (PT)" },
+  { value: "America/Anchorage",   label: "Alaska (AKT)" },
+  { value: "Pacific/Honolulu",    label: "Hawaii (HT)" },
+];
+
 // ─── SETTINGS / INTEGRATIONS ──────────────────────────────────────────────────
 function SettingsView({tenant}){
   const [calStatus,setCalStatus]=useState(null);
+  const [loadingCal,setLoadingCal]=useState(true);
+  const [saving,setSaving]=useState(false);
   const [loading,setLoading]=useState(true);
+  const [toast,setToast]=useState(null);
 
+  const EMPTY = {
+    business_name:"", business_phone:"", business_address:"",
+    open_hour:8, close_hour:18, timezone:"America/Chicago",
+    hours_text:"Monday through Friday, 8 AM to 6 PM",
+    emergency_phone:"", booking_url:"",
+  };
+  const [form,setForm]=useState(EMPTY);
+
+  // Load settings on mount
+  useEffect(()=>{
+    async function load(){
+      setLoading(true);
+      const res=await fetch("/api/settings").catch(()=>null);
+      if(res?.ok){
+        const data=await res.json();
+        if(data && data.id){
+          setForm({
+            business_name:  data.business_name  || "",
+            business_phone: data.business_phone || "",
+            business_address: data.business_address || "",
+            open_hour:      data.open_hour      ?? 8,
+            close_hour:     data.close_hour     ?? 18,
+            timezone:       data.timezone       || "America/Chicago",
+            hours_text:     data.hours_text     || "Monday through Friday, 8 AM to 6 PM",
+            emergency_phone: data.emergency_phone || "",
+            booking_url:    data.booking_url    || "",
+          });
+        }
+      }
+      setLoading(false);
+    }
+    load();
+  },[]);
+
+  // Google Calendar status
   useEffect(()=>{
     fetch(`/api/calendar/status?tenant=${encodeURIComponent(tenant)}`)
       .then(r=>r.json())
-      .then(d=>{setCalStatus(d);setLoading(false)})
-      .catch(()=>setLoading(false));
+      .then(d=>{setCalStatus(d);setLoadingCal(false)})
+      .catch(()=>setLoadingCal(false));
   },[tenant]);
 
   const authUrl=`/api/calendar/auth?tenant=${encodeURIComponent(tenant)}`;
 
   async function disconnect(){
     if(!confirm("Disconnect Google Calendar? Bookings will no longer sync.")) return;
-    setLoading(true);
+    setLoadingCal(true);
     await fetch(`/api/calendar/status?tenant=${encodeURIComponent(tenant)}`,{method:"DELETE"});
     setCalStatus({connected:false});
-    setLoading(false);
+    setLoadingCal(false);
+  }
+
+  async function saveSettings(e){
+    e.preventDefault();
+    setSaving(true);
+    const res=await fetch("/api/settings",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        business_name:    form.business_name,
+        business_phone:   form.business_phone,
+        business_address: form.business_address,
+        open_hour:        Number(form.open_hour),
+        close_hour:       Number(form.close_hour),
+        timezone:         form.timezone,
+        hours_text:       form.hours_text,
+        emergency_phone:  form.emergency_phone,
+        booking_url:      form.booking_url,
+      }),
+    }).catch(()=>null);
+    if(res?.ok){
+      setToast({msg:"Settings saved successfully!",type:"ok"});
+    } else {
+      setToast({msg:"Error saving settings.",type:"err"});
+    }
+    setSaving(false);
+  }
+
+  function set(field,value){
+    setForm(prev=>({...prev,[field]:value}));
   }
 
   return(
     <div className="z1">
+      {toast&&<Toast msg={toast.msg} type={toast.type} onDone={()=>setToast(null)}/>}
       <div className="section-hd">⚙ Settings & Integrations</div>
 
-      {/* Google Calendar */}
-      <div className="card" style={{maxWidth:600}}>
-        <div className="card-title" style={{display:"flex",alignItems:"center",gap:10}}>
-          <span style={{fontSize:"1.3rem"}}>📅</span> Google Calendar
+      {loading ? (
+        <div style={{display:"flex",alignItems:"center",gap:8,color:T.muted,fontSize:"0.85rem",padding:"40px 0"}}>
+          <span className="spin">◌</span> Loading settings…
         </div>
-        <p style={{fontSize:"0.82rem",color:T.muted,lineHeight:1.7,marginBottom:16}}>
-          Connect your Google Calendar so appointments booked through FlowDesk automatically appear as events on your calendar. Each client connects their own calendar.
-        </p>
-        {loading ? (
-          <div style={{display:"flex",alignItems:"center",gap:8,color:T.muted,fontSize:"0.85rem",padding:"12px 0"}}>
-            <span className="spin">◌</span> Checking status…
-          </div>
-        ) : calStatus?.connected ? (
-          <div style={{background:"rgba(90,191,138,.06)",border:"1px solid rgba(90,191,138,.2)",borderRadius:10,padding:16}}>
-            <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:12}}>
-              <span style={{fontSize:"1.2rem"}}>✅</span>
-              <div>
-                <div style={{fontWeight:600,fontSize:"0.9rem",color:T.green}}>Connected</div>
-                <div style={{fontSize:"0.78rem",color:T.muted}}>{calStatus.calendarEmail}</div>
-              </div>
+      ) : (
+        <>
+          {/* Business Settings Form */}
+          <div className="card mb20" style={{maxWidth:700}}>
+            <div className="card-title" style={{display:"flex",alignItems:"center",gap:10}}>
+              <span style={{fontSize:"1.3rem"}}>🏢</span> Business Information
             </div>
-            <button className="btn btn-o btn-s" onClick={disconnect} style={{borderColor:"rgba(224,90,90,.4)",color:T.red}}>
-              ✕ Disconnect
-            </button>
-          </div>
-        ) : (
-          <div>
-            <div style={{background:"rgba(240,180,41,.06)",border:"1px solid rgba(240,180,41,.2)",borderRadius:10,padding:16,marginBottom:16}}>
-              <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:8}}>
-                <span style={{fontSize:"1.2rem"}}>🔌</span>
-                <div>
-                  <div style={{fontWeight:600,fontSize:"0.9rem"}}>Not connected</div>
-                  <div style={{fontSize:"0.78rem",color:T.muted}}>Bookings won't appear on Google Calendar</div>
+            <form onSubmit={saveSettings}>
+              <div className="fg">
+                <div className="field s2">
+                  <label>Business Name</label>
+                  <input placeholder="FlowDesk Home Services" value={form.business_name} onChange={e=>set("business_name",e.target.value)}/>
+                </div>
+                <div className="field">
+                  <label>Business Phone</label>
+                  <input placeholder="+15551234567" value={form.business_phone} onChange={e=>set("business_phone",e.target.value)}/>
+                </div>
+                <div className="field">
+                  <label>Emergency Phone</label>
+                  <input placeholder="+15551234567" value={form.emergency_phone} onChange={e=>set("emergency_phone",e.target.value)}/>
+                </div>
+                <div className="field s2">
+                  <label>Business Address</label>
+                  <input placeholder="123 Main St, Suite 100, City, ST 12345" value={form.business_address} onChange={e=>set("business_address",e.target.value)}/>
+                </div>
+                <div className="field">
+                  <label>Open Hour</label>
+                  <select value={form.open_hour} onChange={e=>set("open_hour",e.target.value)}>
+                    {Array.from({length:24},(_,i)=>(
+                      <option key={i} value={i}>{i===0?"12 AM":i<12?`${i} AM`:i===12?"12 PM":`${i-12} PM`}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="field">
+                  <label>Close Hour</label>
+                  <select value={form.close_hour} onChange={e=>set("close_hour",e.target.value)}>
+                    {Array.from({length:24},(_,i)=>(
+                      <option key={i} value={i}>{i===0?"12 AM":i<12?`${i} AM`:i===12?"12 PM":`${i-12} PM`}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="field">
+                  <label>Timezone</label>
+                  <select value={form.timezone} onChange={e=>set("timezone",e.target.value)}>
+                    {US_TIMEZONES.map(tz=>(
+                      <option key={tz.value} value={tz.value}>{tz.label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="field">
+                  <label>Business Hours Text</label>
+                  <input placeholder="Monday through Friday, 8 AM to 6 PM" value={form.hours_text} onChange={e=>set("hours_text",e.target.value)}/>
+                </div>
+                <div className="field s2">
+                  <label>Booking URL</label>
+                  <input placeholder="https://yourdomain.com/book" value={form.booking_url} onChange={e=>set("booking_url",e.target.value)}/>
                 </div>
               </div>
-            </div>
-            <a href={authUrl} className="btn btn-g" style={{textDecoration:"none",display:"inline-flex"}}>
-              🔗 Connect Google Calendar
-            </a>
-            <p style={{fontSize:"0.72rem",color:T.muted,marginTop:12,lineHeight:1.6}}>
-              You'll be redirected to Google to authorize access. Only <strong>calendar</strong> read/write permissions are requested. We store your refresh token securely and never access your personal data.
-            </p>
+              <div style={{marginTop:20}}>
+                <button type="submit" className="btn btn-g" disabled={saving}>
+                  {saving?<><span className="spin">◌</span> Saving…</>:"💾 Save Settings"}
+                </button>
+              </div>
+            </form>
           </div>
-        )}
-      </div>
+
+          {/* Google Calendar Integration */}
+          <div className="card" style={{maxWidth:700}}>
+            <div className="card-title" style={{display:"flex",alignItems:"center",gap:10}}>
+              <span style={{fontSize:"1.3rem"}}>📅</span> Google Calendar
+            </div>
+            <p style={{fontSize:"0.82rem",color:T.muted,lineHeight:1.7,marginBottom:16}}>
+              Connect your Google Calendar so appointments booked through FlowDesk automatically appear as events on your calendar. Each client connects their own calendar.
+            </p>
+            {loadingCal ? (
+              <div style={{display:"flex",alignItems:"center",gap:8,color:T.muted,fontSize:"0.85rem",padding:"12px 0"}}>
+                <span className="spin">◌</span> Checking status…
+              </div>
+            ) : calStatus?.connected ? (
+              <div style={{background:"rgba(90,191,138,.06)",border:"1px solid rgba(90,191,138,.2)",borderRadius:10,padding:16}}>
+                <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:12}}>
+                  <span style={{fontSize:"1.2rem"}}>✅</span>
+                  <div>
+                    <div style={{fontWeight:600,fontSize:"0.9rem",color:T.green}}>Connected</div>
+                    <div style={{fontSize:"0.78rem",color:T.muted}}>{calStatus.calendarEmail}</div>
+                  </div>
+                </div>
+                <button className="btn btn-o btn-s" onClick={disconnect} style={{borderColor:"rgba(224,90,90,.4)",color:T.red}}>
+                  ✕ Disconnect
+                </button>
+              </div>
+            ) : (
+              <div>
+                <div style={{background:"rgba(240,180,41,.06)",border:"1px solid rgba(240,180,41,.2)",borderRadius:10,padding:16,marginBottom:16}}>
+                  <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:8}}>
+                    <span style={{fontSize:"1.2rem"}}>🔌</span>
+                    <div>
+                      <div style={{fontWeight:600,fontSize:"0.9rem"}}>Not connected</div>
+                      <div style={{fontSize:"0.78rem",color:T.muted}}>Bookings won't appear on Google Calendar</div>
+                    </div>
+                  </div>
+                </div>
+                <a href={authUrl} className="btn btn-g" style={{textDecoration:"none",display:"inline-flex"}}>
+                  🔗 Connect Google Calendar
+                </a>
+                <p style={{fontSize:"0.72rem",color:T.muted,marginTop:12,lineHeight:1.6}}>
+                  You'll be redirected to Google to authorize access. Only <strong>calendar</strong> read/write permissions are requested. We store your refresh token securely and never access your personal data.
+                </p>
+              </div>
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 }
@@ -860,6 +1012,7 @@ export default function FlowDesk(){
           <div className="logo">FlowDesk<sub>Lead & Schedule System</sub></div>
           <div className="flex aic gap12">
             <a href="/outreach" className="btn btn-o btn-s" style={{fontSize:"0.7rem",textDecoration:"none"}}>📞 Outreach</a>
+            <button className="btn btn-o btn-s" style={{fontSize:"0.7rem",cursor:"pointer"}} onClick={async () => { await fetch("/api/auth/logout"); window.location.href = "/login"; }}>🚪 Logout</button>
             <div style={{textAlign:"right"}}>
               <div className="hdr-stat-num">{leads.length}</div>
               <div className="hdr-stat-lbl">Active Leads</div>
