@@ -1,4 +1,4 @@
-const CACHE = "flowdesk-v1";
+const CACHE = "flowdesk-v2";
 const STATIC_ASSETS = [
   "/",
   "/book",

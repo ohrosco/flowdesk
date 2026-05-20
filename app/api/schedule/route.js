@@ -132,4 +132,15 @@ export async function DELETE(req) {
   const { data: existing } = await db.from("appointments").select("google_calendar_event_id")
     .eq("id", id).eq("tenant_id", tenantId).single();
   if (existing?.google_calendar_event_id) {
-    await deleteCalendarEvent(tenantName, existing.google_calendar
+    await deleteCalendarEvent(tenantName, existing.google_calendar_event_id);
+  }
+
+  const { error } = await db.from("appointments").delete().eq("id", id).eq("tenant_id", tenantId);
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json({ ok: true });
+}
+
+function nextMonth(month) {
+  const [y, m] = month.split("-").map(Number);
+  return m === 12 ? `${y + 1}-01` : `${y}-${String(m + 1).padStart(2, "0")}`;
+}

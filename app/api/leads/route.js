@@ -72,3 +72,11 @@ export async function POST(req) {
   ];
 
   const scheduled = sequence.map(({ step, channel, delayHours }) => {
+    const scheduledAt = new Date(now.getTime() + delayHours * 60 * 60 * 1000);
+    return { tenant_id: tenantId, lead_id: lead.id, step, channel, status: "pending", scheduled_at: scheduledAt.toISOString() };
+  });
+
+  await db.from("followup_messages").insert(scheduled);
+
+  return NextResponse.json({ lead, sms: smsResult }, { status: 201 });
+}

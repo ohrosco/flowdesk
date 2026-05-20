@@ -138,4 +138,34 @@ create policy "public_all_settings"
 
 -- SETTINGS TABLE
 -- Single-row config store (id = 1). Holds business config + Stripe subscription state.
--- Required by /api/
+-- Required by /api/stripe/webhook and /api/settings routes.
+-- This was previously created manually in Supabase — now included here so fresh
+-- deployments don't break on the first webhook or settings save.
+create table if not exists settings (
+  id                      int primary key default 1,
+  -- Business identity
+  business_name           text,
+  business_phone          text,
+  business_address        text,
+  open_hour               int  default 8,
+  close_hour              int  default 18,
+  timezone                text default 'America/Los_Angeles',
+  hours_text              text default 'Monday through Friday, 8 AM to 6 PM',
+  emergency_phone         text,
+  booking_url             text,
+  -- Stripe subscription state (written by /api/stripe/webhook)
+  stripe_customer_id      text,
+  stripe_subscription_id  text,
+  subscription_status     text,   -- active | trialing | past_due | canceled
+  subscription_tier       text,   -- starter | professional | agency
+  -- Timestamps
+  created_at              timestamptz default now(),
+  updated_at              timestamptz default now()
+);
+
+-- Seed row 1 so upserts always hit an existing record
+insert into settings (id) values (1) on conflict (id) do nothing;
+
+alter table settings enable row level security;
+create policy "public_all_settings"
+  on settings for all using (true) with check (true);

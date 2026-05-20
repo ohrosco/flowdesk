@@ -271,4 +271,45 @@ export default function Landing() {
                 onClick={() => handleCheckout(p.tier)}
                 disabled={checkoutLoading !== null}
               >
-                {checkoutLoading === p.tier ? "
+                {checkoutLoading === p.tier ? "Redirecting…" : p.cta}
+              </button>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="section" id="faq">
+        <div className="section-tag">Questions?</div>
+        <h2 className="section-hd">Frequently Asked Questions</h2>
+        <p className="section-sub">Everything you need to know before signing up.</p>
+        <div className="faq-grid">
+          {FAQ.map((item,i) => (
+            <div key={i}>
+              <div className={`faq-q ${openFaq===i?"open":""}`} onClick={() => setOpenFaq(openFaq===i ? null : i)}>
+                {item.q}
+              </div>
+              <div className="faq-a" style={{display:openFaq===i?"block":"none"}}>{item.a}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="cta-section">
+        <h2>Ready to stop missing leads?</h2>
+        <p>Get your website + AI phone system in one week. First 5 customers get setup fees waived.</p>
+        <div style={{display:"flex",gap:14,justifyContent:"center",flexWrap:"wrap"}}>
+          <a className="btn btn-g" href="#pricing">Choose Your Plan →</a>
+          <a className="btn btn-o" href="#faq">Still Have Questions?</a>
+        </div>
+      </section>
+
+      <footer className="footer">
+        <p>FlowDesk — Lead Engine for Local Service Businesses<br/>
+        Built for contractors, roofers, plumbers, electricians, landscapers, and every business that lives on the phone.<br/>
+        <a href="/dashboard">Dashboard</a> · <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a></p>
+      </footer>
+    </>
+  );
+}

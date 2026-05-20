@@ -57,6 +57,20 @@ tr:hover td{background:rgba(255,255,255,.02)}
 .toast{position:fixed;bottom:24px;right:24px;background:${T.card};border:1px solid ${T.green};border-radius:12px;padding:12px 18px;font-size:0.84rem;color:${T.green};z-index:200;display:flex;align-items:center;gap:8px;box-shadow:0 8px 32px rgba(0,0,0,.4)}
 .login-url{font-size:0.75rem;color:${T.muted};font-family:monospace;background:${T.surface};padding:4px 8px;border-radius:5px;display:inline-block;margin-top:4px}
 .empty{text-align:center;padding:40px;color:${T.muted};font-size:0.88rem}
+.gs-wrap{padding:40px 32px;display:flex;flex-direction:column;align-items:center;gap:24px}
+.gs-icon{font-size:2.8rem;line-height:1}
+.gs-title{font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:700;color:${T.text};text-align:center}
+.gs-sub{font-size:0.86rem;color:${T.muted};text-align:center;max-width:440px;line-height:1.6}
+.gs-checklist{width:100%;max-width:520px;display:flex;flex-direction:column;gap:10px}
+.gs-item{display:flex;align-items:flex-start;gap:14px;background:${T.surface};border:1px solid ${T.border};border-radius:11px;padding:14px 16px}
+.gs-item.done{border-color:rgba(90,191,138,.3);background:rgba(90,191,138,.05)}
+.gs-dot{width:22px;height:22px;border-radius:50%;border:2px solid ${T.border};flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:0.7rem}
+.gs-item.done .gs-dot{background:${T.green};border-color:${T.green};color:#fff}
+.gs-item-body{flex:1}
+.gs-item-title{font-weight:600;font-size:0.86rem;color:${T.text};margin-bottom:2px}
+.gs-item-desc{font-size:0.78rem;color:${T.muted};line-height:1.5}
+.gs-cta{display:flex;flex-direction:column;align-items:center;gap:8px}
+.gs-cta-hint{font-size:0.76rem;color:${T.muted}}
 `;
 
 export default function AgencyPage() {
@@ -198,7 +212,47 @@ export default function AgencyPage() {
             {loading ? (
               <div className="empty">Loading…</div>
             ) : tenants.length === 0 ? (
-              <div className="empty">No sub-accounts yet. Create your first client account →</div>
+              <div className="gs-wrap">
+                <div className="gs-icon">🏢</div>
+                <div className="gs-title">No sub-accounts yet</div>
+                <div className="gs-sub">
+                  Before you onboard your first client, make sure these four items are ready. Each one takes about 5 minutes.
+                </div>
+
+                <div className="gs-checklist">
+                  {[
+                    {
+                      title: "Connect Stripe",
+                      desc: "Add STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET to your Vercel environment variables so client billing works.",
+                    },
+                    {
+                      title: "Fund your Twilio account",
+                      desc: "Make sure your Twilio balance is topped up and your messaging service is approved for A2P 10DLC (required for US SMS).",
+                    },
+                    {
+                      title: "Point a custom domain",
+                      desc: "Add your agency domain (e.g. app.youragency.com) in Vercel → Settings → Domains, then update DNS with your registrar.",
+                    },
+                    {
+                      title: "Verify your sending domain in Resend",
+                      desc: "Add the DNS records Resend provides for your domain so follow-up emails don't land in spam.",
+                    },
+                  ].map((item, i) => (
+                    <div key={i} className="gs-item">
+                      <div className="gs-dot" style={{borderColor:T.gold,color:T.gold,fontWeight:700,fontSize:"0.72rem"}}>{i + 1}</div>
+                      <div className="gs-item-body">
+                        <div className="gs-item-title">{item.title}</div>
+                        <div className="gs-item-desc">{item.desc}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="gs-cta">
+                  <button className="btn btn-g" onClick={openCreate}>+ Create First Sub-Account</button>
+                  <span className="gs-cta-hint">You can create accounts before setup is complete — clients just won't be able to pay yet.</span>
+                </div>
+              </div>
             ) : (
               <table>
                 <thead>
