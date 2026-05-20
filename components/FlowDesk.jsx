@@ -6,6 +6,8 @@ const T = {
   bg:"#F8FAFC", surface:"#FFFFFF", card:"#FFFFFF", border:"#E2E8F0",
   borderHover:"#CBD5E1", primary:"#2563EB", primaryDim:"#1D4ED8", primaryGlow:"#EFF6FF",
   text:"#0F172A", muted:"#64748B", red:"#DC2626", green:"#16A34A", blue:"#7C3AED",
+  // Legacy aliases used in non-CSS inline styles throughout the component
+  gold:"#2563EB", goldDim:"#1D4ED8", goldGlow:"#EFF6FF",
 };
 
 const CSS = `
