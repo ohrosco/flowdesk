@@ -425,6 +425,12 @@ function LeadsView({leads,setLeads,setAiLead}){
   const [saving,setSaving]=useState(false);
   const [toast,setToast]=useState(null);
   const [filter,setFilter]=useState("all");
+  const nameRef=useRef(null);
+  useEffect(()=>{
+    function handler(){ nameRef.current?.scrollIntoView({behavior:"smooth",block:"center"}); setTimeout(()=>nameRef.current?.focus(),350); }
+    document.addEventListener("fd:open-lead-modal",handler);
+    return ()=>document.removeEventListener("fd:open-lead-modal",handler);
+  },[]);
 
   async function submit(e){
     e.preventDefault();setSaving(true);
@@ -451,7 +457,7 @@ function LeadsView({leads,setLeads,setAiLead}){
           <div className="card">
             <form onSubmit={submit}>
               <div className="fg mb16">
-                <div className="field"><label>Full Name *</label><input required placeholder="Jane Smith" value={form.name} onChange={e=>setForm(p=>({...p,name:e.target.value}))}/></div>
+                <div className="field"><label>Full Name *</label><input ref={nameRef} required placeholder="Jane Smith" value={form.name} onChange={e=>setForm(p=>({...p,name:e.target.value}))}/></div>
                 <div className="field"><label>Phone *</label><input required placeholder="(555) 000-0000" value={form.phone} onChange={e=>setForm(p=>({...p,phone:e.target.value}))}/></div>
                 <div className="field"><label>Email</label><input type="email" placeholder="jane@email.com" value={form.email} onChange={e=>setForm(p=>({...p,email:e.target.value}))}/></div>
                 <div className="field">
@@ -735,6 +741,11 @@ function ScheduleView({leads,appts,setAppts}){
   const [form,setForm]=useState({lead_id:"",lead_name:"",lead_phone:"",appt_type:"estimate",notes:""});
   const [saving,setSaving]=useState(false);
   const [toast,setToast]=useState(null);
+  useEffect(()=>{
+    function handler(){ setSelDay(new Date().getDate()); }
+    document.addEventListener("fd:open-appt-modal",handler);
+    return ()=>document.removeEventListener("fd:open-appt-modal",handler);
+  },[]);
 
   const now=new Date();
   const year=now.getFullYear();
