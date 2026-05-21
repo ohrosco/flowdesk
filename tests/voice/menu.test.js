@@ -78,7 +78,7 @@ describe('POST /api/voice/menu', () => {
     const { POST } = await import('../../app/api/voice/menu/route.js');
     const res = await POST(mockRequest('Digits=9&Caller=%2B12255551234'));
     const xml = await res.text();
-    expect(xml).toContain("didn't understand");
+    expect(xml).toContain("did not understand");
     expect(xml).toContain('<Redirect>');
     expect(xml).toContain('/api/voice/incoming');
   });
@@ -87,7 +87,7 @@ describe('POST /api/voice/menu', () => {
     const { POST } = await import('../../app/api/voice/menu/route.js');
     const res = await POST(mockRequest('Caller=%2B12255551234'));
     const xml = await res.text();
-    expect(xml).toContain("didn't understand");
+    expect(xml).toContain("did not understand");
     expect(xml).toContain('<Redirect>');
   });
 
