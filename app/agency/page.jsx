@@ -79,7 +79,7 @@ export default function AgencyPage() {
   const [showCreate, setShowCreate] = useState(false);
   const [editTenant, setEditTenant] = useState(null);
   const [toast, setToast] = useState("");
-  const [form, setForm] = useState({ name:"", slug:"", password:"", owner_email:"", plan:"starter", business_phone:"", notes:"" });
+  const [form, setForm] = useState({ name:"", slug:"", password:"", owner_email:"", plan:"starter", business_phone:"", twilio_number:"", notes:"" });
   const [formErr, setFormErr] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -98,14 +98,14 @@ export default function AgencyPage() {
   }
 
   function openCreate() {
-    setForm({ name:"", slug:"", password:"", owner_email:"", plan:"starter", business_phone:"", notes:"" });
+    setForm({ name:"", slug:"", password:"", owner_email:"", plan:"starter", business_phone:"", twilio_number:"", notes:"" });
     setFormErr("");
     setEditTenant(null);
     setShowCreate(true);
   }
 
   function openEdit(t) {
-    setForm({ name:t.name, slug:t.slug, password:"", owner_email:t.owner_email||"", plan:t.plan, business_phone:t.business_phone||"", notes:t.notes||"" });
+    setForm({ name:t.name, slug:t.slug, password:"", owner_email:t.owner_email||"", plan:t.plan, business_phone:t.business_phone||"", twilio_number:t.twilio_number||"", notes:t.notes||"" });
     setFormErr("");
     setEditTenant(t);
     setShowCreate(true);
@@ -259,6 +259,7 @@ export default function AgencyPage() {
                   <tr>
                     <th>Client</th>
                     <th>Login URL</th>
+                    <th>Twilio #</th>
                     <th>Plan</th>
                     <th>Status</th>
                     <th>Trial / Renews</th>
@@ -282,6 +283,9 @@ export default function AgencyPage() {
                         >
                           /login?t={t.slug}
                         </div>
+                      </td>
+                      <td style={{fontSize:"0.8rem",color:T.muted,fontFamily:"monospace"}}>
+                        {t.twilio_number || "—"}
                       </td>
                       <td>
                         <span className="badge" style={{background:`${PLAN_COLORS[t.plan]}18`,color:PLAN_COLORS[t.plan],borderColor:`${PLAN_COLORS[t.plan]}40`}}>
@@ -362,6 +366,10 @@ export default function AgencyPage() {
                 <label>Business Phone</label>
                 <input value={form.business_phone} onChange={e => setField("business_phone", e.target.value)} placeholder="+13105550000" />
               </div>
+            </div>
+            <div className="field">
+              <label>Twilio Phone Number</label>
+              <input value={form.twilio_number} onChange={e => setField("twilio_number", e.target.value)} placeholder="+18005550000" />
             </div>
             <div className="field">
               <label>Internal Notes</label>

@@ -14,7 +14,7 @@ export async function GET() {
 export async function POST(req) {
   try {
     const body = await req.json();
-    const { name, slug, password, owner_email, plan, business_phone, notes } = body;
+    const { name, slug, password, owner_email, plan, business_phone, twilio_number, notes } = body;
 
     if (!name || !slug || !password) {
       return NextResponse.json(
@@ -43,6 +43,7 @@ export async function POST(req) {
         owner_email: owner_email || null,
         plan: plan || "starter",
         business_phone: business_phone || null,
+        twilio_number: twilio_number || null,
         notes: notes || null,
         active: true,
         subscription_status: "trial",
