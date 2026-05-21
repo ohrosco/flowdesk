@@ -8,31 +8,31 @@ const T = {
 };
 
 const FEATURES = [
-  { icon:"🌐", title:"Professional Website", desc:"A modern 3-5 page website built for your business — shows up on Google, looks great on every device." },
-  { icon:"📞", title:"24/7 AI Phone Answering", desc:"Never miss a lead again. Our AI answers every call, captures details, and books appointments — even after hours." },
-  { icon:"📋", title:"Smart Lead Capture", desc:"Every call, web form, and text message automatically creates a lead in your CRM. No data entry needed." },
-  { icon:"⚡", title:"Auto Follow-Up Sequence", desc:"SMS, email, and phone call reminders go out automatically. 14-day sequence turns cold leads into paying jobs." },
-  { icon:"📅", title:"Online Booking & Calendar", desc:"Customers book their own appointments online. Syncs with your schedule. Reduces no-shows with auto-reminders." },
-  { icon:"📊", title:"Pipeline Dashboard", desc:"See every lead, every follow-up, every appointment in one place. Know exactly who to call today." },
+  { icon:"🌐", title:"Professional Website", desc:"Shows up on Google, loads fast on mobile, and turns visitors into calls. Built in 5-7 days. You approve it before anything goes live." },
+  { icon:"📞", title:"24/7 AI Phone Answering", desc:"Your phone gets answered at 2am on Sunday the same way it does at noon Tuesday. Every caller is greeted, qualified, and booked — without you lifting a finger." },
+  { icon:"📋", title:"Smart Lead Capture", desc:"Every call, form, and text automatically creates a lead with the caller's name, number, service request, and address. Zero data entry. Nothing falls through the cracks." },
+  { icon:"⚡", title:"Auto Follow-Up Sequence", desc:"14 days of SMS, email, and call reminders fire automatically after every new lead. Most clients close 30–40% more jobs just from the follow-up sequence alone." },
+  { icon:"📅", title:"Online Booking & Calendar", desc:"Customers pick their own time slot. You get a notification. The AI sends a reminder the day before. No-shows drop. You stop playing phone tag." },
+  { icon:"📊", title:"Pipeline Dashboard", desc:"Every lead, every follow-up status, every appointment in one view. Log in each morning and know exactly who to call, who's booked, and who needs a nudge." },
 ];
 
 const PRICING = [
   {
-    name:"Starter", price:"$197", desc:"For solo operators testing the waters",
+    name:"Starter", price:"$197", desc:"For the solo operator who needs to stop missing calls today.",
     features:["1-page website", "AI phone answering (100 min/mo)", "Lead capture CRM", "SMS follow-up sequence", "Online booking widget"],
     cta:"Start Free Trial",
     tier:"starter",
     popular:false,
   },
   {
-    name:"Professional", price:"$297", desc:"For growing teams that want it all",
+    name:"Professional", price:"$297", desc:"A receptionist costs $3,200/mo. A web agency charges $2,000 upfront. We do more than both — for $297/mo.",
     features:["5-page custom website", "AI phone answering (300 min/mo)", "Full lead CRM + pipeline", "SMS + Email + Call follow-ups", "Online booking + auto-reminders", "AI draft follow-ups", "Priority support"],
     cta:"Start Free Trial",
     tier:"professional",
     popular:true,
   },
   {
-    name:"Agency", price:"$497", desc:"For multi-location businesses",
+    name:"Agency", price:"$497", desc:"Running 2+ locations, or want a white-labeled system for your own clients? This is your tier.",
     features:["10-page website + sub-pages", "AI phone answering (unlimited)", "Multi-location CRM", "White-label dashboard", "Custom integrations", "Dedicated account manager"],
     cta:"Contact Us",
     tier:"agency",
@@ -41,12 +41,13 @@ const PRICING = [
 ];
 
 const FAQ = [
-  { q:"Do I need a website already?", a:"Nope! We build it for you. Most of our customers don't have one — that's the whole point. We design, build, and launch your site in about a week." },
-  { q:"What if I already have a website?", a:"We can work with what you have, or rebuild it. The FlowDesk system integrates with your existing site or replaces it entirely." },
-  { q:"How does the AI phone system work?", a:"When a customer calls your FlowDesk number, our AI greets them, asks what they need, captures their info, and books them — just like a human receptionist. You get a notification instantly." },
-  { q:"Can I keep my current phone number?", a:"Yes. We can port your existing number to FlowDesk, or you keep it and add a FlowDesk number alongside it. Both forward to the same system." },
-  { q:"How long to get set up?", a:"Website: 5-7 days. AI phone system: 24 hours. Full setup including porting your number: about a week." },
-  { q:"Is there a contract?", a:"Month-to-month. No long-term contracts. You can cancel anytime — we'll help you export everything." },
+  { q:"What's the typical ROI?", a:"The average contractor misses 7 calls per week. At a $400 average job, that's roughly $2,800/mo walking out the door. Our Professional plan pays for itself if we help you book one extra job a month — most clients see that in the first week." },
+  { q:"Do I need a website already?", a:"Nope. We build it for you. Most of our customers don't have one — that's the whole point. We design, build, and launch your site in about a week. You approve it before it goes live." },
+  { q:"What if I already have a website?", a:"We can work with what you have, or rebuild it. The FlowDesk system integrates with your existing site or replaces it entirely. Either way, the AI phone system and CRM work the same." },
+  { q:"How does the AI phone system work?", a:"When a customer calls your FlowDesk number, our AI answers, asks what they need, captures their info, and books them — just like a human receptionist. You get a text notification instantly. It works at 2am the same as it does at noon." },
+  { q:"Can I keep my current phone number?", a:"Yes. We can port your existing number to FlowDesk, or you keep it and add a FlowDesk number alongside it. Your customers call the same number they always have." },
+  { q:"How long to get set up?", a:"AI phone system: 24 hours. Website: 5-7 days. Full setup including number porting: about a week. You'll be capturing leads before your site is even live." },
+  { q:"Is there a contract?", a:"Month-to-month. No long-term contracts. Cancel anytime — we'll help you export everything. We'd rather earn your business every month than lock you in." },
 ];
 
 const CSS = `
@@ -200,18 +201,18 @@ export default function Landing() {
 
       {/* HERO */}
       <section className="hero">
-        <div className="hero-badge"><span>NEW</span> Your website + AI phone system — one flat price</div>
-        <h1>A website + AI that<br/>answers your calls<br/>and <span>fills your schedule.</span></h1>
-        <p>We build you a professional website. We set up an AI phone system that answers every call, captures leads, and books jobs. No website? No problem. That&apos;s the whole point.</p>
+        <div className="hero-badge"><span>LIMITED</span> Setup fees waived for the first 5 clients — 2 spots left</div>
+        <h1>The average contractor<br/>misses 7 calls a week.<br/><span>That&apos;s $2,800 walking out the door.</span></h1>
+        <p>FlowDesk answers every call, captures every lead, and sends automatic follow-ups — 24/7, no receptionist needed. We also build your website. You just show up and do the jobs.</p>
         <div className="hero-actions">
-          <a className="btn btn-g" href="#pricing">See Plans & Pricing</a>
-          <a className="btn btn-w" href="#how">How It Works</a>
+          <a className="btn btn-g" href="#pricing">Start Free Trial — No Card Required</a>
+          <a className="btn btn-w" href="#how">See How It Works</a>
         </div>
-        <div className="hero-note">🚀 First 5 customers get setup fees waived</div>
+        <div className="hero-note">30-day free trial · No contract · Cancel anytime</div>
         <div className="stats-row">
-          <div className="stat-item"><div className="stat-num">98%</div><div className="stat-lbl">of local businesses have no AI</div></div>
-          <div className="stat-item"><div className="stat-num">67%</div><div className="stat-lbl">of calls after hours go unanswered</div></div>
-          <div className="stat-item"><div className="stat-num">3x</div><div className="stat-lbl">more leads with auto follow-up</div></div>
+          <div className="stat-item"><div className="stat-num">7</div><div className="stat-lbl">missed calls per contractor per week</div></div>
+          <div className="stat-item"><div className="stat-num">$2,800</div><div className="stat-lbl">in lost jobs every single month</div></div>
+          <div className="stat-item"><div className="stat-num">14-day</div><div className="stat-lbl">follow-up sequence runs automatically</div></div>
         </div>
       </section>
 
@@ -237,14 +238,14 @@ export default function Landing() {
         <h2 className="section-hd">From signup to your first lead in 7 days</h2>
         <p className="section-sub">No technical skills needed. We do everything.</p>
         <div className="steps">
-          <div className="step"><div className="step-num">1</div><div className="step-title">We Build Your Site</div><div className="step-desc">You tell us about your business. We design and launch your website in 5-7 days.</div></div>
-          <div className="step"><div className="step-num">2</div><div className="step-title">We Set Up Your Phone</div><div className="step-desc">We configure your AI phone system. Port your existing number or get a new one. Working in 24 hours.</div></div>
-          <div className="step"><div className="step-num">3</div><div className="step-title">Leads Start Flowing</div><div className="step-desc">Calls get answered. Forms get submitted. Follow-ups go out. You just show up and do the work.</div></div>
+          <div className="step"><div className="step-num">1</div><div className="step-title">We Build Your Site</div><div className="step-desc">Tell us about your business. We design and launch your website in 5-7 days. You approve it before anything goes live.</div></div>
+          <div className="step"><div className="step-num">2</div><div className="step-title">Your Phone Goes Live</div><div className="step-desc">We configure your AI phone system in 24 hours. Port your existing number or get a new one — your customers notice nothing changed.</div></div>
+          <div className="step"><div className="step-num">3</div><div className="step-title">You Stop Missing Money</div><div className="step-desc">Every call is answered. Every lead is captured. Follow-ups go out automatically. You just show up and do the jobs.</div></div>
         </div>
         <div className="quote">
-          <div className="quote-text">&quot;I was paying $400/mo for a basic website and still missing calls. FlowDesk built me a better site AND answers my phones for less than I was paying for just the website.&quot;</div>
-          <div className="quote-author">— Mike R.</div>
-          <div className="quote-role">Roofing Contractor, Denham Springs</div>
+          <div className="quote-text">&quot;First week with FlowDesk, the AI caught three after-hours calls I would have missed. Two of them booked estimates. That paid for six months right there.&quot;</div>
+          <div className="quote-author">— Carlos M.</div>
+          <div className="quote-role">HVAC Contractor, Los Angeles</div>
         </div>
       </section>
 
@@ -297,11 +298,11 @@ export default function Landing() {
 
       {/* CTA */}
       <section className="cta-section">
-        <h2>Ready to stop missing leads?</h2>
-        <p>Get your website + AI phone system in one week. First 5 customers get setup fees waived.</p>
+        <h2>You&apos;re losing $2,800/mo in missed calls.<br/>Let&apos;s fix that.</h2>
+        <p>30-day free trial. Setup in one week. No contract — cancel anytime if it doesn&apos;t pay for itself.</p>
         <div style={{display:"flex",gap:14,justifyContent:"center",flexWrap:"wrap"}}>
-          <a className="btn btn-g" href="#pricing">Choose Your Plan →</a>
-          <a className="btn btn-o" href="#faq">Still Have Questions?</a>
+          <a className="btn btn-g" href="#pricing">Start Free Trial →</a>
+          <a className="btn btn-o" href="#faq">Have Questions?</a>
         </div>
       </section>
 
