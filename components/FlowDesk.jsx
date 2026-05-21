@@ -1787,7 +1787,7 @@ function ReviewsView({leads}){
             <div style={{padding:"32px 20px",textAlign:"center",display:"flex",flexDirection:"column",gap:8,alignItems:"center"}}>
               <div style={{fontSize:"1.8rem"}}>🏆</div>
               <div style={{fontWeight:600,color:"#F0EAD6",fontSize:"0.86rem"}}>No won clients yet</div>
-              <div style={{fontSize:"0.78rem",color:"#8A8470",lineHeight:1.6,maxWidth:220}}>Move a lead to <strong style={{color:"#5ABF8A"}}>Won</strong> in the Sales Pipeline tab and they'll appear here, ready for a review request.</div>
+              <div style={{fontSize:"0.78rem",color:"#8A8470",lineHeight:1.6,maxWidth:220}}>Move a lead to <strong style={{color:"#5ABF8A"}}>Won</strong> in the Sales Pipeline tab and they&apos;ll appear here, ready for a review request.</div>
             </div>
           )}
           {wonLeads.map(l=>{
@@ -1822,7 +1822,7 @@ function ReviewsView({leads}){
             <div style={{padding:"32px 20px",textAlign:"center",display:"flex",flexDirection:"column",gap:8,alignItems:"center"}}>
               <div style={{fontSize:"1.8rem"}}>📬</div>
               <div style={{fontWeight:600,color:"#F0EAD6",fontSize:"0.86rem"}}>No requests sent yet</div>
-              <div style={{fontSize:"0.78rem",color:"#8A8470",lineHeight:1.6,maxWidth:220}}>Once you send a review request, it'll appear here with a timestamp and the lead's info.</div>
+              <div style={{fontSize:"0.78rem",color:"#8A8470",lineHeight:1.6,maxWidth:220}}>Once you send a review request, it&apos;ll appear here with a timestamp and the lead&apos;s info.</div>
             </div>
           )}
           {requests.map(r=>(

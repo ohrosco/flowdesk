@@ -250,7 +250,7 @@ export default function AgencyPage() {
 
                 <div className="gs-cta">
                   <button className="btn btn-g" onClick={openCreate}>+ Create First Sub-Account</button>
-                  <span className="gs-cta-hint">You can create accounts before setup is complete — clients just won't be able to pay yet.</span>
+                  <span className="gs-cta-hint">You can create accounts before setup is complete — clients just won&apos;t be able to pay yet.</span>
                 </div>
               </div>
             ) : (
