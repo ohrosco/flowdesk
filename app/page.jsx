@@ -41,7 +41,7 @@ const PRICING = [
 ];
 
 const FAQ = [
-  { q:"What's the typical ROI?", a:"The average contractor misses 7 calls per week. At a $400 average job, that's roughly $2,800/mo walking out the door. Our Professional plan pays for itself if we help you book one extra job a month — most clients see that in the first week." },
+  { q:"What's the typical ROI?", a:"The average contractor misses 7 calls per week. At a $250 average service call, that's over $1,500/mo walking out the door. Our Professional plan pays for itself if we help you book one extra job a month — most clients see that in the first week." },
   { q:"Do I need a website already?", a:"Nope. We build it for you. Most of our customers don't have one — that's the whole point. We design, build, and launch your site in about a week. You approve it before it goes live." },
   { q:"What if I already have a website?", a:"We can work with what you have, or rebuild it. The FlowDesk system integrates with your existing site or replaces it entirely. Either way, the AI phone system and CRM work the same." },
   { q:"How does the AI phone system work?", a:"When a customer calls your FlowDesk number, our AI answers, asks what they need, captures their info, and books them — just like a human receptionist. You get a text notification instantly. It works at 2am the same as it does at noon." },
@@ -202,7 +202,7 @@ export default function Landing() {
       {/* HERO */}
       <section className="hero">
         <div className="hero-badge"><span>LIMITED</span> Setup fees waived for the first 5 clients — 2 spots left</div>
-        <h1>The average contractor<br/>misses 7 calls a week.<br/><span>That&apos;s $2,800 walking out the door.</span></h1>
+        <h1>The average contractor<br/>misses 7 calls a week.<br/><span>That&apos;s $1,500+ walking out the door.</span></h1>
         <p>FlowDesk answers every call, captures every lead, and sends automatic follow-ups — 24/7, no receptionist needed. We also build your website. You just show up and do the jobs.</p>
         <div className="hero-actions">
           <a className="btn btn-g" href="#pricing">Start Free Trial — No Card Required</a>
@@ -211,7 +211,7 @@ export default function Landing() {
         <div className="hero-note">30-day free trial · No contract · Cancel anytime</div>
         <div className="stats-row">
           <div className="stat-item"><div className="stat-num">7</div><div className="stat-lbl">missed calls per contractor per week</div></div>
-          <div className="stat-item"><div className="stat-num">$2,800</div><div className="stat-lbl">in lost jobs every single month</div></div>
+          <div className="stat-item"><div className="stat-num">$1,500+</div><div className="stat-lbl">in lost jobs every single month</div></div>
           <div className="stat-item"><div className="stat-num">14-day</div><div className="stat-lbl">follow-up sequence runs automatically</div></div>
         </div>
       </section>
@@ -298,7 +298,7 @@ export default function Landing() {
 
       {/* CTA */}
       <section className="cta-section">
-        <h2>You&apos;re losing $2,800/mo in missed calls.<br/>Let&apos;s fix that.</h2>
+        <h2>You&apos;re losing $1,500/mo in missed calls.<br/>Let&apos;s fix that.</h2>
         <p>30-day free trial. Setup in one week. No contract — cancel anytime if it doesn&apos;t pay for itself.</p>
         <div style={{display:"flex",gap:14,justifyContent:"center",flexWrap:"wrap"}}>
           <a className="btn btn-g" href="#pricing">Start Free Trial →</a>
