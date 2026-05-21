@@ -348,6 +348,20 @@ function AiModal({lead,onClose}){
 }
 
 // ─── DASHBOARD ────────────────────────────────────────────────────────────────
+
+const GBP_STEPS=[
+  {id:"claim",   title:"Claim your Google Business Profile",  desc:"Go to google.com/business and claim or create your listing. Nothing else works without this.",                                              link:"https://business.google.com"},
+  {id:"info",    title:"Complete your business info",          desc:"Fill in your exact business name, primary category, phone, address, and website URL. Accuracy here directly affects your ranking.",       link:"https://business.google.com/dashboard"},
+  {id:"hours",   title:"Set accurate business hours",          desc:"Add regular hours, holiday hours, and special closures. Google penalizes profiles with incorrect or missing hours.",                       link:"https://business.google.com/dashboard"},
+  {id:"booking", title:"Add your FlowDesk booking link",       desc:"Add your /book URL to the Appointment Links section. This puts a Book Now button directly on your Google listing.",                       link:"https://business.google.com/dashboard"},
+  {id:"photos",  title:"Upload at least 10 photos",            desc:"Add exterior, interior, team, and completed job photos. Profiles with photos get 42% more direction requests from Google.",               link:"https://business.google.com/dashboard"},
+  {id:"services",title:"List all your services",               desc:"Add each service with a description and price range. This is what appears when customers search for what you do.",                        link:"https://business.google.com/dashboard"},
+  {id:"desc",    title:"Write your business description",      desc:"Use all 750 characters. Mention your city, specialty, and what makes you different. Include keywords customers search for.",              link:"https://business.google.com/dashboard"},
+  {id:"reviews", title:"Get your first 10 Google reviews",     desc:"Use the Reviews tab to send a review request SMS to your past clients. 10+ reviews dramatically improves your map ranking.",              link:null},
+  {id:"qa",      title:"Add Q&A to your profile",              desc:"Post the 5 most common questions you get and answer them yourself. This content shows on your listing and helps with search.",            link:"https://business.google.com/dashboard"},
+  {id:"posts",   title:"Post a Google update this week",       desc:"Share a completed job, seasonal promo, or a tip. Weekly posts signal to Google that your business is active and engaged.",               link:"https://business.google.com/dashboard"},
+];
+
 function Dashboard({leads,appts,onTab}){
   const hot=leads.filter(l=>l.status==="hot").length;
   const due=leads.filter(l=>l.stage?.includes("Follow")||l.stage?.includes("New")).length;
@@ -399,6 +413,57 @@ function Dashboard({leads,appts,onTab}){
             </div>
           ))}
           <button className="btn btn-o btn-s" style={{marginTop:12,width:"100%"}} onClick={()=>onTab("schedule")}>Open Calendar →</button>
+        </div>
+      </div>
+      <div className="two-col mb20">
+        <div className="card">
+          <div className="card-title">📊 Lead Sources</div>
+          {(()=>{
+            const srcs={};
+            leads.forEach(l=>{const s=l.source||"Unknown";srcs[s]=(srcs[s]||0)+1;});
+            const sorted=Object.entries(srcs).sort((a,b)=>b[1]-a[1]);
+            const max=sorted[0]?.[1]||1;
+            return sorted.length===0
+              ?<div style={{fontSize:"0.82rem",color:T.muted,padding:"20px 0",textAlign:"center"}}>No leads yet — capture your first one!</div>
+              :sorted.map(([src,cnt])=>(
+                <div key={src} style={{marginBottom:12}}>
+                  <div style={{display:"flex",justifyContent:"space-between",fontSize:"0.78rem",marginBottom:5}}>
+                    <span style={{fontWeight:500}}>{src}</span>
+                    <span style={{color:T.muted}}>{cnt} lead{cnt!==1?"s":""}</span>
+                  </div>
+                  <div style={{background:T.border,borderRadius:4,height:6}}>
+                    <div style={{width:`${Math.round((cnt/max)*100)}%`,background:T.primary,borderRadius:4,height:6,transition:"width .4s"}}/>
+                  </div>
+                </div>
+              ));
+          })()}
+        </div>
+        <div className="card">
+          <div className="card-title">🎯 Conversion by Source</div>
+          {(()=>{
+            const srcs={};
+            leads.forEach(l=>{
+              const s=l.source||"Unknown";
+              if(!srcs[s]) srcs[s]={total:0,converted:0};
+              srcs[s].total++;
+              if(l.status==="hot"||l.stage?.includes("Book")||l.stage?.includes("Won")) srcs[s].converted++;
+            });
+            const sorted=Object.entries(srcs).sort((a,b)=>b[1].total-a[1].total);
+            return sorted.length===0
+              ?<div style={{fontSize:"0.82rem",color:T.muted,padding:"20px 0",textAlign:"center"}}>No leads yet.</div>
+              :sorted.map(([src,{total,converted}])=>{
+                const rate=total>0?Math.round((converted/total)*100):0;
+                return(
+                  <div key={src} className="lr" style={{padding:"8px 0"}}>
+                    <div style={{flex:1}}>
+                      <div style={{fontSize:"0.82rem",fontWeight:500}}>{src}</div>
+                      <div style={{fontSize:"0.72rem",color:T.muted}}>{total} lead{total!==1?"s":""}</div>
+                    </div>
+                    <span className={`badge ${rate>=50?"b-done":rate>=25?"b-warm":"b-cold"}`}>{rate}% active</span>
+                  </div>
+                );
+              });
+          })()}
         </div>
       </div>
       <div className="card">
@@ -1844,6 +1909,67 @@ function ReviewsView({leads}){
   );
 }
 
+
+// ─── GBP OPTIMIZER ────────────────────────────────────────────────────────────
+function GbpView(){
+  const [done,setDone]=useState(()=>{
+    try{return JSON.parse(localStorage.getItem("fd_gbp_done")||"[]");}
+    catch{return [];}
+  });
+  function toggle(id){
+    setDone(prev=>{
+      const next=prev.includes(id)?prev.filter(x=>x!==id):[...prev,id];
+      localStorage.setItem("fd_gbp_done",JSON.stringify(next));
+      return next;
+    });
+  }
+  const pct=Math.round((done.length/GBP_STEPS.length)*100);
+  return(
+    <div className="z1">
+      <div className="card mb20">
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12}}>
+          <div className="card-title" style={{margin:0}}>📍 Google Business Profile Optimizer</div>
+          <span style={{fontSize:"0.82rem",color:T.muted}}>{done.length}/{GBP_STEPS.length} complete</span>
+        </div>
+        <div style={{background:T.border,borderRadius:4,height:8,marginBottom:8}}>
+          <div style={{width:`${pct}%`,background:pct===100?T.green:T.primary,borderRadius:4,height:8,transition:"width .4s"}}/>
+        </div>
+        <div style={{fontSize:"0.75rem",color:pct===100?T.green:T.muted,lineHeight:1.5}}>
+          {pct===100
+            ?"✅ Profile fully optimized — you&apos;ll start appearing in more local searches."
+            :pct>=50
+            ?"Good progress — finish the remaining steps to maximize your Google ranking."
+            :"Complete these steps to appear when local customers search for your services."}
+        </div>
+      </div>
+      <div style={{display:"flex",flexDirection:"column",gap:10}}>
+        {GBP_STEPS.map((step,i)=>{
+          const isDone=done.includes(step.id);
+          return(
+            <div key={step.id} className="card" style={{borderColor:isDone?T.green:T.border,background:isDone?"#F0FDF4":T.card,transition:"all .2s"}}>
+              <div style={{display:"flex",alignItems:"flex-start",gap:14}}>
+                <div onClick={()=>toggle(step.id)} style={{width:24,height:24,borderRadius:"50%",border:`2px solid ${isDone?T.green:T.border}`,background:isDone?T.green:"transparent",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",flexShrink:0,marginTop:1,color:"#fff",fontSize:"0.72rem",fontWeight:700,transition:"all .2s"}}>
+                  {isDone?"✓":i+1}
+                </div>
+                <div style={{flex:1}}>
+                  <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:10,flexWrap:"wrap"}}>
+                    <div style={{fontSize:"0.88rem",fontWeight:600,color:isDone?T.green:T.text,textDecoration:isDone?"line-through":"none"}}>{step.title}</div>
+                    {step.link
+                      ?<a href={step.link} target="_blank" rel="noopener noreferrer" className="btn btn-o btn-s" style={{flexShrink:0,textDecoration:"none",fontSize:"0.72rem"}}>Open Google →</a>
+                      :<button className="btn btn-g btn-s" style={{flexShrink:0,fontSize:"0.72rem"}} onClick={()=>document.dispatchEvent(new CustomEvent("fd:tab","reviews"))}>Use Reviews Tab →</button>
+                    }
+                  </div>
+                  <div style={{fontSize:"0.78rem",color:T.muted,marginTop:5,lineHeight:1.6}}>{step.desc}</div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // ─── ROOT ─────────────────────────────────────────────────────────────────────
 export default function FlowDesk(){
   const [tab,setTab]=useState("dash");
@@ -1899,6 +2025,9 @@ export default function FlowDesk(){
       {id:"broadcast", label:"Broadcast",   icon:"📢"},
       {id:"reviews",   label:"Reviews",     icon:"⭐"},
     ]},
+    {label:"Grow",items:[
+      {id:"gbp",       label:"GBP Setup",   icon:"📍"},
+    ]},
     {label:"System",items:[
       {id:"settings",  label:"Settings",    icon:"⚙"},
     ]},
@@ -1912,6 +2041,7 @@ export default function FlowDesk(){
     broadcast: {title:"Broadcast",    sub:"Send SMS campaigns to your lead list"},
     reviews:   {title:"Reviews",      sub:"Request Google reviews from won clients"},
     sched:     {title:"Schedule",     sub:"Appointments and calendar"},
+    gbp:       {title:"GBP Setup",     sub:"Optimize your Google Business Profile to rank higher in local search"},
     settings:  {title:"Settings",     sub:"Business configuration"},
   };
 
@@ -1997,6 +2127,7 @@ export default function FlowDesk(){
                     {tab==="broadcast" &&<BroadcastView leads={leads}/>}
                     {tab==="reviews"   &&<ReviewsView leads={leads}/>}
                     {tab==="sched"     &&<ScheduleView leads={leads} appts={appts} setAppts={setAppts}/>}
+                    {tab==="gbp"       &&<GbpView/>}
                     {tab==="settings"  &&<SettingsView tenant={tenant}/>}
                   </>
                 )}
