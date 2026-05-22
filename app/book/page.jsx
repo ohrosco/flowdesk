@@ -74,6 +74,7 @@ const MONTHS = ["January","February","March","April","May","June","July","August
 const DAYS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 
 export default function BookPage() {
+  const [mounted, setMounted] = useState(false);
   const now = new Date();
   const [step, setStep] = useState(1);
   const [year, setYear] = useState(now.getFullYear());
@@ -85,6 +86,9 @@ export default function BookPage() {
   const [saving, setSaving] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => { setMounted(true); }, []);
+  if (!mounted) return null;
 
   const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
