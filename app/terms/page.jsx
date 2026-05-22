@@ -107,7 +107,7 @@ export default function TermsPage() {
 
         <h2>12. Contact</h2>
         <p>For questions about these terms:<br/>
-        Email: roscommedia@gmail.com<br/>
+        Email: goflowdesk@proton.me<br/>
         Phone: +1 (225) 460-1636<br/>
         FlowDesk — Denham Springs, Louisiana</p>
       </div>

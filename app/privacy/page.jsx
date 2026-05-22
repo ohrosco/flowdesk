@@ -90,7 +90,7 @@ export default function PrivacyPage() {
         <p>We retain your information for as long as needed to provide services and comply with legal obligations. Lead data is retained for 2 years after last contact. Call recordings are retained for 90 days.</p>
 
         <h2>6. Your Rights</h2>
-        <p>Depending on your location, you may have rights to access, correct, delete, or port your data. To exercise these rights, contact us at roscommedia@gmail.com. We will respond within 30 days.</p>
+        <p>Depending on your location, you may have rights to access, correct, delete, or port your data. To exercise these rights, contact us at goflowdesk@proton.me. We will respond within 30 days.</p>
 
         <h2>7. Security</h2>
         <p>We use industry-standard encryption (TLS/SSL) for data in transit and encryption at rest for stored data. Access to personal data is restricted to authorized personnel only.</p>
@@ -100,7 +100,7 @@ export default function PrivacyPage() {
 
         <h2>9. Contact</h2>
         <p>For questions about this policy, contact:<br/>
-        Email: roscommedia@gmail.com<br/>
+        Email: goflowdesk@proton.me<br/>
         Phone: +1 (225) 460-1636</p>
       </div>
 
