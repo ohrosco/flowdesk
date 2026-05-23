@@ -40,6 +40,56 @@ const PRICING = [
   },
 ];
 
+const QUIZ = [
+  {
+    q: "How many inbound leads or calls do you get per month?",
+    opts: [
+      { label: "Under 20", value: "low" },
+      { label: "20–60", value: "mid" },
+      { label: "60+", value: "high" },
+    ],
+  },
+  {
+    q: "Who handles calls and scheduling right now?",
+    opts: [
+      { label: "Just me", value: "solo" },
+      { label: "Small team", value: "team" },
+      { label: "Office staff", value: "staff" },
+    ],
+  },
+  {
+    q: "How are you currently tracking leads?",
+    opts: [
+      { label: "Phone & memory", value: "none" },
+      { label: "Spreadsheet", value: "sheet" },
+      { label: "A CRM or software", value: "crm" },
+    ],
+  },
+  {
+    q: "Are you setting this up for one business or multiple?",
+    opts: [
+      { label: "One business", value: "one" },
+      { label: "Multiple locations", value: "multi" },
+      { label: "I&apos;m an agency / consultant", value: "agency" },
+    ],
+  },
+];
+
+const QUIZ_RESULTS = {
+  starter: {
+    tier: "Starter",
+    desc: "Based on your answers, the Starter plan is your best fit. You'll stop missing calls immediately without paying for features you don't need yet. Upgrade anytime as you grow.",
+  },
+  professional: {
+    tier: "Professional",
+    desc: "Based on your volume and setup, Professional is your tier. The ROI math is immediate — one extra job a month more than covers the cost. Most clients see that in the first week.",
+  },
+  agency: {
+    tier: "Agency",
+    desc: "You need multi-account management. The Agency plan gives you a white-label dashboard for every client or location, with unlimited AI call handling across all of them.",
+  },
+};
+
 const FAQ = [
   { q:"What's the typical ROI?", a:"The average contractor misses 7 calls per week. At a $250 average service call, that's over $1,500/mo walking out the door. Our Professional plan pays for itself if we help you book one extra job a month — most clients see that in the first week." },
   { q:"Do I need a website already?", a:"Nope. We build it for you. Most of our customers don't have one — that's the whole point. We design, build, and launch your site in about a week. You approve it before it goes live." },
@@ -96,8 +146,10 @@ body{background:${T.bg};color:${T.text};font-family:'IBM Plex Sans',sans-serif;o
 @media(max-width:800px){.pricing-grid{grid-template-columns:1fr;max-width:400px;margin:0 auto}}
 .p-card{background:${T.card};border:1px solid ${T.border};border-radius:16px;padding:32px;position:relative;transition:all .25s}
 .p-card.popular{border-color:${T.gold};background:linear-gradient(135deg,${T.card},rgba(240,180,41,.04))}
+.p-card.recommended{border-color:${T.gold};box-shadow:0 0 30px rgba(240,180,41,.1)}
 .p-card:hover{transform:translateY(-3px)}
-.p-pop{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:${T.gold};color:#0A0A07;font-size:0.7rem;font-weight:700;padding:4px 14px;border-radius:50px;text-transform:uppercase;letter-spacing:0.08em}
+.p-pop{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:${T.gold};color:#0A0A07;font-size:0.7rem;font-weight:700;padding:4px 14px;border-radius:50px;text-transform:uppercase;letter-spacing:0.08em;white-space:nowrap}
+.p-rec{position:absolute;top:-12px;right:16px;background:${T.goldGlow};border:1px solid rgba(240,180,41,.3);color:${T.gold};font-size:0.68rem;font-weight:600;padding:4px 12px;border-radius:50px;text-transform:uppercase;letter-spacing:0.08em;white-space:nowrap}
 .p-name{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;margin-bottom:4px}
 .p-price{font-family:'Playfair Display',serif;font-size:2.4rem;font-weight:800;color:${T.gold};margin-bottom:4px}
 .p-price sub{font-size:0.9rem;font-weight:400;color:${T.muted}}
@@ -119,6 +171,27 @@ body{background:${T.bg};color:${T.text};font-family:'IBM Plex Sans',sans-serif;o
 .quote-text{font-family:'Playfair Display',serif;font-size:1.2rem;font-style:italic;line-height:1.7;margin-bottom:16px;color:${T.text}}
 .quote-author{font-size:0.85rem;font-weight:600;color:${T.gold}}
 .quote-role{font-size:0.75rem;color:${T.muted}}
+.quiz-card{max-width:600px;margin:0 auto;background:${T.card};border:1px solid ${T.border};border-radius:20px;padding:40px}
+.quiz-progress{font-size:0.78rem;color:${T.muted};margin-bottom:20px;display:flex;flex-direction:column;gap:8px}
+.quiz-bar{height:3px;background:${T.border};border-radius:2px;overflow:hidden}
+.quiz-fill{height:100%;background:${T.gold};border-radius:2px;transition:width .35s}
+.quiz-q{font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:600;margin-bottom:28px;line-height:1.4}
+.quiz-opts{display:flex;flex-direction:column;gap:10px;margin-bottom:20px}
+.quiz-opt{background:${T.surface};border:1px solid ${T.border};border-radius:12px;padding:14px 20px;font-family:'IBM Plex Sans',sans-serif;font-size:0.9rem;color:${T.text};cursor:pointer;text-align:left;transition:all .2s;font-weight:500}
+.quiz-opt:hover{border-color:${T.gold};color:${T.gold};background:${T.goldGlow}}
+.quiz-back{background:none;border:none;color:${T.muted};font-size:0.8rem;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;padding:0;transition:color .2s}
+.quiz-back:hover{color:${T.text}}
+.quiz-result{max-width:600px;margin:0 auto;background:linear-gradient(135deg,${T.card},rgba(240,180,41,.05));border:1px solid ${T.gold};border-radius:20px;padding:48px 40px;text-align:center}
+.quiz-result-tag{font-size:0.75rem;font-weight:600;color:${T.gold};text-transform:uppercase;letter-spacing:0.12em;margin-bottom:12px}
+.quiz-result-tier{font-family:'Playfair Display',serif;font-size:2.6rem;font-weight:800;color:${T.gold};margin-bottom:14px}
+.quiz-result-desc{font-size:0.92rem;color:${T.muted};line-height:1.75;max-width:460px;margin:0 auto}
+.dfy-card{background:${T.card};border:1px solid ${T.border};border-radius:16px;padding:40px 44px;margin-top:20px;position:relative;overflow:hidden}
+.dfy-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,${T.gold},transparent)}
+.dfy-badge{display:inline-block;background:${T.goldGlow};border:1px solid rgba(240,180,41,.25);color:${T.gold};font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;padding:4px 14px;border-radius:50px;margin-bottom:16px}
+.dfy-inner{display:flex;justify-content:space-between;align-items:flex-start;gap:40px;flex-wrap:wrap}
+.dfy-price{font-family:'Playfair Display',serif;font-size:1.7rem;color:${T.text};margin-bottom:10px}
+.dfy-price span{color:${T.gold};font-weight:800}
+.dfy-price small{font-family:'IBM Plex Sans',sans-serif;font-size:0.85rem;color:${T.muted};font-weight:400}
 .faq-grid{max-width:700px;margin:0 auto;display:flex;flex-direction:column;gap:8px}
 .faq-q{background:${T.card};border:1px solid ${T.border};border-radius:12px;padding:18px 20px;cursor:pointer;transition:border-color .2s;font-size:0.9rem;font-weight:500}
 .faq-q:hover{border-color:${T.gold}}
@@ -135,8 +208,41 @@ body{background:${T.bg};color:${T.text};font-family:'IBM Plex Sans',sans-serif;o
 export default function Landing() {
   const [openFaq, setOpenFaq] = useState(null);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [checkoutLoading, setCheckoutLoading] = useState(null); // tier string while loading
+  const [checkoutLoading, setCheckoutLoading] = useState(null);
   const [checkoutError, setCheckoutError] = useState("");
+
+  // Quiz state
+  const [quizStep, setQuizStep] = useState(0); // 0=idle, 1-4=questions, 5=result
+  const [quizAnswers, setQuizAnswers] = useState({});
+  const [quizResult, setQuizResult] = useState(null);
+
+  function calcQuizResult(answers) {
+    if (answers[3] === "multi" || answers[3] === "agency") return "agency";
+    let score = 0;
+    if (answers[0] === "mid") score += 1;
+    if (answers[0] === "high") score += 2;
+    if (answers[1] === "team" || answers[1] === "staff") score += 1;
+    if (answers[2] === "sheet") score += 1;
+    if (answers[2] === "crm") score += 2;
+    return score >= 2 ? "professional" : "starter";
+  }
+
+  function handleQuizAnswer(stepIndex, value) {
+    const newAnswers = { ...quizAnswers, [stepIndex]: value };
+    setQuizAnswers(newAnswers);
+    if (stepIndex === 3) {
+      setQuizResult(calcQuizResult(newAnswers));
+      setQuizStep(5);
+    } else {
+      setQuizStep(stepIndex + 2);
+    }
+  }
+
+  function resetQuiz() {
+    setQuizStep(0);
+    setQuizAnswers({});
+    setQuizResult(null);
+  }
 
   async function handleCheckout(tier) {
     if (tier === "agency") {
@@ -155,7 +261,6 @@ export default function Landing() {
       if (data.url) {
         window.location.href = data.url;
       } else {
-        // Stripe not configured yet — fall back to contact
         setCheckoutError(data.error || "Checkout unavailable. Please contact us to sign up.");
       }
     } catch {
@@ -205,7 +310,7 @@ export default function Landing() {
         <h1>The average contractor<br/>misses 7 calls a week.<br/><span>That&apos;s $1,500+ walking out the door.</span></h1>
         <p>FlowDesk answers every call, captures every lead, and sends automatic follow-ups — 24/7, no receptionist needed. We also build your website. You just show up and do the jobs.</p>
         <div className="hero-actions">
-          <a className="btn btn-g" href="#pricing">Start Free Trial — No Card Required</a>
+          <a className="btn btn-g" href="#quiz">Find My Plan — Free</a>
           <a className="btn btn-w" href="#how">See How It Works</a>
         </div>
         <div className="hero-note">30-day free trial · No contract · Cancel anytime</div>
@@ -249,6 +354,53 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* QUALIFIER QUIZ */}
+      <section className="section" id="quiz">
+        <div className="section-tag">Find Your Fit</div>
+        <h2 className="section-hd">Not sure which plan is right?</h2>
+        <p className="section-sub">Answer 4 quick questions and we&apos;ll tell you exactly which tier fits your business — and why.</p>
+
+        {quizStep === 0 && (
+          <div style={{textAlign:"center"}}>
+            <button className="btn btn-g" style={{fontSize:"0.95rem",padding:"14px 32px"}} onClick={() => setQuizStep(1)}>
+              Take the 60-Second Quiz →
+            </button>
+          </div>
+        )}
+
+        {quizStep >= 1 && quizStep <= 4 && (
+          <div className="quiz-card">
+            <div className="quiz-progress">
+              <span>Question {quizStep} of 4</span>
+              <div className="quiz-bar"><div className="quiz-fill" style={{width:`${(quizStep/4)*100}%`}} /></div>
+            </div>
+            <div className="quiz-q">{QUIZ[quizStep - 1].q}</div>
+            <div className="quiz-opts">
+              {QUIZ[quizStep - 1].opts.map((opt, i) => (
+                <button key={i} className="quiz-opt" onClick={() => handleQuizAnswer(quizStep - 1, opt.value)}>
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+            {quizStep > 1 && (
+              <button className="quiz-back" onClick={() => setQuizStep(quizStep - 1)}>← Back</button>
+            )}
+          </div>
+        )}
+
+        {quizStep === 5 && quizResult && (
+          <div className="quiz-result">
+            <div className="quiz-result-tag">Your Recommended Plan</div>
+            <div className="quiz-result-tier">{QUIZ_RESULTS[quizResult].tier}</div>
+            <div className="quiz-result-desc">{QUIZ_RESULTS[quizResult].desc}</div>
+            <div style={{display:"flex",gap:12,justifyContent:"center",flexWrap:"wrap",marginTop:28}}>
+              <a className="btn btn-g" href="#pricing">See My Plan →</a>
+              <button className="btn btn-o" onClick={resetQuiz}>Retake Quiz</button>
+            </div>
+          </div>
+        )}
+      </section>
+
       {/* PRICING */}
       <section className="section" id="pricing">
         <div className="section-tag">Simple Pricing</div>
@@ -261,14 +413,15 @@ export default function Landing() {
         )}
         <div className="pricing-grid">
           {PRICING.map((p,i) => (
-            <div key={i} className={`p-card ${p.popular?"popular":""}`}>
+            <div key={i} className={`p-card ${p.popular?"popular":""} ${quizResult===p.tier?"recommended":""}`}>
               {p.popular && <div className="p-pop">Most Popular</div>}
+              {quizResult === p.tier && <div className="p-rec">★ Recommended for you</div>}
               <div className="p-name">{p.name}</div>
               <div className="p-price">{p.price}<sub>/mo</sub></div>
               <div className="p-desc">{p.desc}</div>
               <ul className="p-features">{p.features.map((f,j) => <li key={j}>{f}</li>)}</ul>
               <button
-                className={`btn ${p.popular?"btn-g":"btn-o"}`}
+                className={`btn ${p.popular || quizResult===p.tier ? "btn-g":"btn-o"}`}
                 onClick={() => handleCheckout(p.tier)}
                 disabled={checkoutLoading !== null}
               >
@@ -276,6 +429,31 @@ export default function Landing() {
               </button>
             </div>
           ))}
+        </div>
+
+        {/* DONE-FOR-YOU CARD */}
+        <div className="dfy-card">
+          <div className="dfy-badge">Premium Service</div>
+          <div className="dfy-inner">
+            <div style={{flex:"1",minWidth:260}}>
+              <div className="p-name" style={{fontSize:"1.5rem",marginBottom:8}}>Done-For-You AI Setup</div>
+              <div className="dfy-price">From <span>$1,500</span> <small>one-time</small></div>
+              <div className="p-desc" style={{maxWidth:460,fontSize:"0.88rem",lineHeight:1.75}}>
+                Not sure where to start, or just want it handled? We audit your operations, build out your entire FlowDesk system, write your AI phone scripts, and configure every automation — top to bottom. You show up to a fully working system.
+              </div>
+            </div>
+            <div style={{flex:"1",minWidth:220}}>
+              <ul className="p-features" style={{marginBottom:24}}>
+                <li>Full business operations audit</li>
+                <li>Done-for-you FlowDesk setup &amp; config</li>
+                <li>Custom AI phone scripts &amp; IVR flows</li>
+                <li>Tailored SMS &amp; email follow-up sequences</li>
+                <li>30-day optimization &amp; support call</li>
+                <li>Staff training &amp; handoff documentation</li>
+              </ul>
+              <a className="btn btn-g" href="/book" style={{display:"inline-flex"}}>Book a Strategy Call →</a>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -301,7 +479,7 @@ export default function Landing() {
         <h2>You&apos;re losing $1,500/mo in missed calls.<br/>Let&apos;s fix that.</h2>
         <p>30-day free trial. Setup in one week. No contract — cancel anytime if it doesn&apos;t pay for itself.</p>
         <div style={{display:"flex",gap:14,justifyContent:"center",flexWrap:"wrap"}}>
-          <a className="btn btn-g" href="#pricing">Start Free Trial →</a>
+          <a className="btn btn-g" href="#quiz">Find My Plan →</a>
           <a className="btn btn-o" href="#faq">Have Questions?</a>
         </div>
       </section>
