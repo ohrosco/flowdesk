@@ -140,7 +140,7 @@ export default function Landing() {
 
   async function handleCheckout(tier) {
     if (tier === "agency") {
-      window.location.href = "mailto:hello@flowdesk.app?subject=Agency Plan Inquiry";
+      window.location.href = "mailto:goflowdesk@proton.me?subject=Agency Plan Inquiry";
       return;
     }
     setCheckoutLoading(tier);
@@ -256,7 +256,7 @@ export default function Landing() {
         <p className="section-sub">Website build, AI phone system, CRM, booking, follow-ups — all included. Month-to-month. Cancel anytime.</p>
         {checkoutError && (
           <div style={{maxWidth:480,margin:"0 auto 24px",background:"rgba(224,90,90,.08)",border:"1px solid rgba(224,90,90,.25)",borderRadius:10,padding:"12px 16px",fontSize:"0.84rem",color:"#E05A5A",textAlign:"center"}}>
-            {checkoutError} — <a href="mailto:hello@flowdesk.app" style={{color:"#E05A5A"}}>email us to sign up</a>
+            {checkoutError} — <a href="mailto:goflowdesk@proton.me" style={{color:"#E05A5A"}}>email us to sign up</a>
           </div>
         )}
         <div className="pricing-grid">

@@ -4,7 +4,7 @@ import { supabaseAdmin } from "../../../../lib/supabase";
 import { getTenantById } from "../../../../lib/tenant-lookup";
 
 const VoiceResponse = twilio.twiml.VoiceResponse;
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://flowdesk-ruby.vercel.app";
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://goflowdesk.io";
 
 // ─── POST /api/voice/lead-capture ──────────────────────────────────────
 // Handles zip code entry from <Gather> and creates a lead scoped to tenant

@@ -3,7 +3,7 @@ import twilio from "twilio";
 import { getTenantById } from "../../../../lib/tenant-lookup";
 
 const VoiceResponse = twilio.twiml.VoiceResponse;
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://flowdesk-ruby.vercel.app";
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://goflowdesk.io";
 
 // ─── POST /api/voice/menu ──────────────────────────────────────────────
 // Handles DTMF keypress from the IVR menu
