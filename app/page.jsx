@@ -18,16 +18,16 @@ const FEATURES = [
 
 const PRICING = [
   {
-    name:"Starter", price:"$197", desc:"For the solo operator who needs to stop missing calls today.",
+    name:"Starter", price:"$197", desc:"For the solo operator who needs to stop missing calls today. No setup fee — get started immediately.",
     features:["1-page website", "AI phone answering (100 min/mo)", "Lead capture CRM", "SMS follow-up sequence", "Online booking widget"],
-    cta:"Start Free Trial",
+    cta:"Get Started",
     tier:"starter",
     popular:false,
   },
   {
-    name:"Professional", price:"$297", desc:"A receptionist costs $3,200/mo. A web agency charges $2,000 upfront. We do more than both — for $297/mo.",
+    name:"Professional", price:"$197", setup:"$97", desc:"We do the full setup for you — website, AI phone scripts, CRM, every automation. You show up to a working system. One-time $97 setup fee, then $197/mo.",
     features:["5-page custom website", "AI phone answering (300 min/mo)", "Full lead CRM + pipeline", "SMS + Email + Call follow-ups", "Online booking + auto-reminders", "AI draft follow-ups", "Priority support"],
-    cta:"Start Free Trial",
+    cta:"Get Started",
     tier:"professional",
     popular:true,
   },
@@ -82,7 +82,7 @@ const QUIZ_RESULTS = {
   },
   professional: {
     tier: "Professional",
-    desc: "Based on your volume and setup, Professional is your tier. The ROI math is immediate — one extra job a month more than covers the cost. Most clients see that in the first week.",
+    desc: "Based on your volume and setup, Professional is your tier. $97 to get fully set up, then $197/mo. One extra job a month covers it — most clients see that in the first week.",
   },
   agency: {
     tier: "Agency",
@@ -151,6 +151,8 @@ body{background:${T.bg};color:${T.text};font-family:'IBM Plex Sans',sans-serif;o
 .p-pop{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:${T.gold};color:#0A0A07;font-size:0.7rem;font-weight:700;padding:4px 14px;border-radius:50px;text-transform:uppercase;letter-spacing:0.08em;white-space:nowrap}
 .p-rec{position:absolute;top:-12px;right:16px;background:${T.goldGlow};border:1px solid rgba(240,180,41,.3);color:${T.gold};font-size:0.68rem;font-weight:600;padding:4px 12px;border-radius:50px;text-transform:uppercase;letter-spacing:0.08em;white-space:nowrap}
 .p-name{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;margin-bottom:4px}
+.p-setup{font-size:0.82rem;font-weight:600;color:${T.muted};margin-bottom:2px}
+.p-setup span{font-weight:400}
 .p-price{font-family:'Playfair Display',serif;font-size:2.4rem;font-weight:800;color:${T.gold};margin-bottom:4px}
 .p-price sub{font-size:0.9rem;font-weight:400;color:${T.muted}}
 .p-desc{font-size:0.82rem;color:${T.muted};margin-bottom:24px}
@@ -404,8 +406,8 @@ export default function Landing() {
       {/* PRICING */}
       <section className="section" id="pricing">
         <div className="section-tag">Simple Pricing</div>
-        <h2 className="section-hd">One flat rate. No surprises.</h2>
-        <p className="section-sub">Website build, AI phone system, CRM, booking, follow-ups — all included. Month-to-month. Cancel anytime.</p>
+        <h2 className="section-hd">$97 to get set up. $197/mo after that.</h2>
+        <p className="section-sub">Website build, AI phone system, CRM, booking, follow-ups — all included. One-time setup fee, then month-to-month. Cancel anytime.</p>
         {checkoutError && (
           <div style={{maxWidth:480,margin:"0 auto 24px",background:"rgba(224,90,90,.08)",border:"1px solid rgba(224,90,90,.25)",borderRadius:10,padding:"12px 16px",fontSize:"0.84rem",color:"#E05A5A",textAlign:"center"}}>
             {checkoutError} — <a href="mailto:goflowdesk@proton.me" style={{color:"#E05A5A"}}>email us to sign up</a>
@@ -417,7 +419,14 @@ export default function Landing() {
               {p.popular && <div className="p-pop">Most Popular</div>}
               {quizResult === p.tier && <div className="p-rec">★ Recommended for you</div>}
               <div className="p-name">{p.name}</div>
-              <div className="p-price">{p.price}<sub>/mo</sub></div>
+              {p.setup ? (
+                <div>
+                  <div className="p-setup">{p.setup} <span>one-time setup</span></div>
+                  <div className="p-price">{p.price}<sub>/mo</sub></div>
+                </div>
+              ) : (
+                <div className="p-price">{p.price}<sub>/mo</sub></div>
+              )}
               <div className="p-desc">{p.desc}</div>
               <ul className="p-features">{p.features.map((f,j) => <li key={j}>{f}</li>)}</ul>
               <button
