@@ -412,7 +412,7 @@ function Dashboard({leads,appts,onTab}){
               <span className="badge b-done">Confirmed</span>
             </div>
           ))}
-          <button className="btn btn-o btn-s" style={{marginTop:12,width:"100%"}} onClick={()=>onTab("schedule")}>Open Calendar →</button>
+          <button className="btn btn-o btn-s" style={{marginTop:12,width:"100%"}} onClick={()=>onTab("sched")}>Open Calendar →</button>
         </div>
       </div>
       <div className="two-col mb20">
