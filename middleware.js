@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 // Routes that require agency-level auth (master password)
-const AGENCY_PATHS = ["/agency"];
+const AGENCY_PATHS = ["/agency", "/api/tenants"];
 
 // Routes that require tenant-level auth (client login)
 const TENANT_PATHS = ["/dashboard", "/outreach"];
@@ -55,7 +55,7 @@ export async function middleware(request) {
 
   if (!isTenant) return NextResponse.next();
 
-  const secret = adminPassword || "fallback_secret";
+  const secret = adminPassword;
 
   // 1. Check for new multi-tenant session cookie
   const tenantToken = request.cookies.get("flowdesk_tenant_session")?.value;
@@ -104,5 +104,6 @@ export const config = {
     "/dashboard/:path*", "/dashboard",
     "/outreach/:path*",  "/outreach",
     "/agency/:path*",    "/agency",
+    "/api/tenants/:path*", "/api/tenants",
   ],
 };

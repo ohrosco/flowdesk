@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
+import { requireInternalAuth } from "@/lib/auth";
 
 // ─── POST /api/claude ─────────────────────────────────────────────────────────
 // Proxies requests to Anthropic API so the key stays server-side
 export async function POST(req) {
+  const authCheck = requireInternalAuth(req);
+  if (authCheck) return authCheck;
+
   const { prompt, system, messages, max_tokens = 1000 } = await req.json();
 
   const msgs = messages || [{ role: "user", content: prompt }];

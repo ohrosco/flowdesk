@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
+import { requireInternalAuth } from "@/lib/auth";
 import { sendSMS, getSMSTemplate } from "@/lib/twilio";
 import { sendEmail, getFollowUpEmail } from "@/lib/resend";
 
@@ -8,6 +9,8 @@ import { sendEmail, getFollowUpEmail } from "@/lib/resend";
 export const dynamic = 'force-dynamic';
 
 export async function GET(req) {
+  const authCheck = requireInternalAuth(req);
+  if (authCheck) return authCheck;
   const { searchParams } = new URL(req.url);
   const leadId = searchParams.get("lead_id");
   const db = supabaseAdmin();
@@ -24,6 +27,8 @@ export async function GET(req) {
 // Manually trigger a follow-up (or called by a cron job)
 // Body: { message_id } OR { lead_id, step, channel }
 export async function POST(req) {
+  const authCheck = requireInternalAuth(req);
+  if (authCheck) return authCheck;
   const body = await req.json();
   const db = supabaseAdmin();
 

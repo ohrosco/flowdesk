@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { requireInternalAuth } from "@/lib/auth";
 import { sendSMS } from "../../../../lib/twilio";
 
 // ─── POST /api/voice/emergency-sms ─────────────────────────────────────
@@ -6,6 +7,9 @@ import { sendSMS } from "../../../../lib/twilio";
 // Called internally (fire-and-forget) when caller presses 1
 
 export async function POST(req) {
+  const authCheck = requireInternalAuth(req);
+  if (authCheck) return authCheck;
+
   try {
     const { phone, callerNumber } = await req.json();
     if (!phone) {

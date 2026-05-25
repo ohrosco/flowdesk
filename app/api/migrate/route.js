@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { requireInternalAuth } from "@/lib/auth";
 
-export async function GET() {
+export async function GET(req) {
+  const authCheck = requireInternalAuth(req);
+  if (authCheck) return authCheck;
   const sql = `
 -- Create settings table for business configuration (single row, single tenant)
 CREATE TABLE IF NOT EXISTS settings (
