@@ -285,7 +285,7 @@ export default function Landing() {
   }
 
   return (
-    <>
+    <div style={{background:T.bg,color:T.text,minHeight:"100vh"}}>
       <style>{CSS}</style>
 
       {/* NAV */}
@@ -520,6 +520,6 @@ export default function Landing() {
         Built for contractors, roofers, plumbers, electricians, landscapers, and every business that lives on the phone.<br/>
         <a href="/dashboard">Dashboard</a> · <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a></p>
       </footer>
-    </>
+    </div>
   );
 }
