@@ -18,21 +18,21 @@ const FEATURES = [
 
 const PRICING = [
   {
-    name:"Starter", price:"$197", desc:"For the solo operator who needs to stop missing calls today. No setup fee — get started immediately.",
+    name:"Starter", price:"$197", setup:"$97", desc:"For the solo operator who needs to stop missing calls today.",
     features:["1-page website", "AI phone answering (100 min/mo)", "Lead capture CRM", "SMS follow-up sequence", "Online booking widget"],
     cta:"Get Started",
     tier:"starter",
     popular:false,
   },
   {
-    name:"Professional", price:"$197", setup:"$97", desc:"We handle the full setup: website, AI phone scripts, CRM, every automation. You show up to a working system.",
+    name:"Professional", price:"$297", setup:"$97", desc:"We handle the full setup: website, AI phone scripts, CRM, every automation. You show up to a working system.",
     features:["5-page custom website", "AI phone answering (300 min/mo)", "Full lead CRM + pipeline", "SMS + Email + Call follow-ups", "Online booking + auto-reminders", "AI draft follow-ups", "Priority support"],
     cta:"Get Started",
     tier:"professional",
     popular:true,
   },
   {
-    name:"Agency", price:"$497", desc:"Running 2+ locations, or want a white-labeled system for your own clients? This is your tier.",
+    name:"Agency", price:"$497", noSetup:true, desc:"Running 2+ locations, or want a white-labeled system for your own clients? This is your tier.",
     features:["10-page website + sub-pages", "AI phone answering (unlimited)", "Multi-location CRM", "White-label dashboard", "Custom integrations", "Dedicated account manager"],
     cta:"Contact Us",
     tier:"agency",
@@ -82,7 +82,7 @@ const QUIZ_RESULTS = {
   },
   professional: {
     tier: "Professional",
-    desc: "Based on your volume and setup, Professional is your tier. $97 to get fully set up, then $197/mo. One extra job a month covers it — most clients see that in the first week.",
+    desc: "Based on your volume and setup, Professional is your tier. $97 to get fully set up, then $297/mo. One extra job a month covers it. Most clients see that in the first week.",
   },
   agency: {
     tier: "Agency",
@@ -421,7 +421,7 @@ export default function Landing() {
       {/* PRICING */}
       <section className="section" id="pricing">
         <div className="section-tag">Simple Pricing</div>
-        <h2 className="section-hd">$97 to get set up. $197/mo after that.</h2>
+        <h2 className="section-hd">$97 setup. Month-to-month after that.</h2>
         <p className="section-sub">Website build, AI phone system, CRM, booking, follow-ups — all included. One-time setup fee, then month-to-month. Cancel anytime.</p>
         {checkoutError && (
           <div style={{maxWidth:480,margin:"0 auto 24px",background:"rgba(224,90,90,.08)",border:"1px solid rgba(224,90,90,.25)",borderRadius:10,padding:"12px 16px",fontSize:"0.84rem",color:"#E05A5A",textAlign:"center"}}>
@@ -437,6 +437,11 @@ export default function Landing() {
               {p.setup ? (
                 <div>
                   <div className="p-setup">{p.setup} <span>one-time setup</span></div>
+                  <div className="p-price">{p.price}<sub>/mo</sub></div>
+                </div>
+              ) : p.noSetup ? (
+                <div>
+                  <div className="p-setup" style={{color:T.muted,fontWeight:400}}>No setup fee</div>
                   <div className="p-price">{p.price}<sub>/mo</sub></div>
                 </div>
               ) : (
