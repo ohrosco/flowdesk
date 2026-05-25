@@ -1,24 +1,9 @@
-const CACHE = "flowdesk-v2";
-const STATIC_ASSETS = [
-  "/",
-  "/book",
-  "/dashboard",
-  "/manifest.json",
-  "/icons/icon-192.svg",
-  "/icons/icon-512.svg",
-];
+const CACHE = "flowdesk-v3";
 
-// Install — cache known assets
 self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(CACHE).then((cache) => {
-      return cache.addAll(STATIC_ASSETS);
-    })
-  );
   self.skipWaiting();
 });
 
-// Activate — clear old caches
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
@@ -28,7 +13,6 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
-// Fetch — network first for API, cache first for static
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
 
@@ -37,20 +21,34 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Static assets — cache first
+  // Next.js static chunks have content-hashed filenames — safe to cache forever
+  if (url.pathname.startsWith("/_next/static/")) {
+    event.respondWith(
+      caches.match(event.request).then((cached) => {
+        return cached || fetch(event.request).then((res) => {
+          if (res.ok) {
+            const clone = res.clone();
+            caches.open(CACHE).then((cache) => cache.put(event.request, clone));
+          }
+          return res;
+        });
+      })
+    );
+    return;
+  }
+
+  // HTML pages and everything else — network first so deploys are picked up immediately
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      return cached || fetch(event.request).then((res) => {
-        // Cache successful responses
+    fetch(event.request)
+      .then((res) => {
         if (res.ok && res.type === "basic") {
           const clone = res.clone();
           caches.open(CACHE).then((cache) => cache.put(event.request, clone));
         }
         return res;
-      });
-    }).catch(() => {
-      // Offline fallback — show cached pages
-      return caches.match("/");
-    })
+      })
+      .catch(() =>
+        caches.match(event.request).then((cached) => cached || caches.match("/"))
+      )
   );
 });
