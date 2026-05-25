@@ -1,7 +1,12 @@
 export default {
   testEnvironment: 'node',
   transform: {
-    '^.+\\.js$': 'babel-jest',
+    '^.+\\.js$': ['babel-jest', {
+      presets: [
+        ['@babel/preset-env', { targets: { node: 'current' } }],
+        ['@babel/preset-react', { runtime: 'automatic' }],
+      ],
+    }],
   },
   transformIgnorePatterns: ['/node_modules/(?!(twilio)/)'],
   moduleNameMapper: {

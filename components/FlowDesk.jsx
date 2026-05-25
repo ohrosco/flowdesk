@@ -1182,27 +1182,22 @@ function OnboardingWizard({onComplete,setActiveTab}){
     emergency_phone:"", booking_url:"",
   };
 
-  // Restore from localStorage if available
+  // Restore from localStorage if available; auto-detect timezone when missing
   function loadSaved(){
+    let base=EMPTY;
     try{
       const raw=typeof window!=="undefined"&&window.localStorage.getItem(LS_KEY);
-      return raw?{...EMPTY,...JSON.parse(raw)}:EMPTY;
-    }catch{return EMPTY;}
+      if(raw) base={...EMPTY,...JSON.parse(raw)};
+    }catch{}
+    if(!base.timezone){
+      try{ base={...base,timezone:Intl.DateTimeFormat().resolvedOptions().timeZone||""}; }catch{}
+    }
+    return base;
   }
 
   const [screen,setScreen]=useState("welcome"); // welcome|step1|step2|launch|done
   const [saving,setSaving]=useState(false);
   const [form,setForm]=useState(loadSaved);
-
-  // Auto-detect timezone on mount
-  useEffect(()=>{
-    if(!form.timezone){
-      try{
-        const tz=Intl.DateTimeFormat().resolvedOptions().timeZone;
-        if(tz) set("timezone",tz);
-      }catch{}
-    }
-  },[]);
 
   function set(field,value){
     setForm(p=>{
