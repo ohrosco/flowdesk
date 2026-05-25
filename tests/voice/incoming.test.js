@@ -19,7 +19,8 @@ function mockRequest(body = '', searchParams = {}) {
 function setTime(hour, minute = 0, weekday = 'Wed') {
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const dayIndex = days.indexOf(weekday);
-  const baseDate = new Date(2026, 0, 5 + dayIndex, hour, minute);
+  // Use Date.UTC so the fake time is UTC-based — tests set BUSINESS_TIMEZONE='UTC'
+  const baseDate = new Date(Date.UTC(2026, 0, 5 + dayIndex, hour, minute));
   jest.useFakeTimers({ now: baseDate });
 }
 

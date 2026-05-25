@@ -7,6 +7,6 @@ export default {
   moduleNameMapper: {
     '^next/server$': '<rootDir>/tests/mocks/next-server.js',
   },
-  testMatch: ['**/tests/**/*.test.js'],
+  testMatch: ['<rootDir>/tests/**/*.test.js'],
   setupFiles: ['<rootDir>/tests/setup.js'],
 };
