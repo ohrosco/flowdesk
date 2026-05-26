@@ -31,7 +31,9 @@ export async function POST(req) {
 
   if (!res.ok) {
     const err = await res.text();
-    return NextResponse.json({ error: err }, { status: res.status });
+    console.error(`Anthropic ${res.status}:`, err);
+    // Return 200 so the error text is visible in the UI for debugging
+    return NextResponse.json({ text: `[DEBUG ${res.status}] ${err}` });
   }
 
   const data = await res.json();
