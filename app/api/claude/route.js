@@ -13,7 +13,7 @@ export async function POST(req) {
   const msgs = messages || [{ role: "user", content: prompt }];
 
   const body = {
-    model: "claude-sonnet-4-20250514",
+    model: "claude-3-5-sonnet-20241022",
     max_tokens,
     messages: msgs,
   };
