@@ -13,7 +13,7 @@ export async function POST(req) {
   const msgs = messages || [{ role: "user", content: prompt }];
 
   const body = {
-    model: "claude-3-5-sonnet-20241022",
+    model: "claude-sonnet-4-5",
     max_tokens,
     messages: msgs,
   };
@@ -32,8 +32,7 @@ export async function POST(req) {
   if (!res.ok) {
     const err = await res.text();
     console.error(`Anthropic ${res.status}:`, err);
-    // Return 200 so the error text is visible in the UI for debugging
-    return NextResponse.json({ text: `[DEBUG ${res.status}] ${err}` });
+    return NextResponse.json({ error: err }, { status: res.status });
   }
 
   const data = await res.json();
