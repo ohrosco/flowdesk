@@ -50,7 +50,7 @@ Wait. If they answer, you have a conversation. If they don't, follow up once in 
 >
 > I built a system that answers every call, captures the lead, texts them back automatically, and follows up for 14 days.
 >
-> It costs $197/month.
+> It costs $97/month.
 >
 > Worth 10 minutes?
 >
@@ -136,13 +136,13 @@ Once they've said the number, say this:
 
 > "Okay so here's how it works.
 >
-> It's $197 a month. That includes the AI phone system, the website, the lead dashboard, the automated follow-up — everything. No contracts, cancel any time.
+> It's $97 a month. That includes the AI phone system, the website, the lead dashboard, the automated follow-up — everything. No contracts, cancel any time.
 >
 > I'll set the whole thing up for you. You don't touch a line of code. It's live within 24–48 hours.
 >
 > Compare that to a receptionist — that's $3,000 a month, benefits not included, doesn't work nights and weekends, and quits.
 >
-> You said you're losing around $2,000 a month in missed calls. This costs $197.
+> You said you're losing around $2,000 a month in missed calls. This costs $97.
 >
 > The math kind of does itself."
 
@@ -251,7 +251,7 @@ Day 7:
 | Average missed calls per week | 5–7 |
 | Average service ticket (Louisiana) | $250–$300 |
 | Monthly revenue lost to missed calls | $1,500–$2,500 |
-| FlowDesk cost | $197/month |
+| FlowDesk cost | $97/month (Starter) |
 | Receptionist cost | $3,000+/month |
 | Follow-up sequence length | 14 days |
 | Time to go live | 24–48 hours |

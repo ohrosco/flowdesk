@@ -3,7 +3,7 @@
 ## Project Overview
 Next.js 14 App Router SaaS for local LA service businesses. Website + AI phone system + lead CRM + appointment booking + auto follow-ups. Multi-tenant: one agency account manages many sub-accounts (clients), each fully isolated.
 
-**Pricing tiers:** Starter $197/mo · Professional $297/mo · Agency $497/mo
+**Pricing tiers:** Starter $97/mo · Professional $297/mo · Agency $497/mo · Setup fee $39 (all tiers)
 
 ## URLs
 - **Production:** https://flowdesk-ruby.vercel.app

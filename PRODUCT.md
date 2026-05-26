@@ -10,7 +10,7 @@ Local service business owners in the LA area: plumbers, HVAC techs, electricians
 
 ## Product Purpose
 
-FlowDesk sells a done-for-you system: professional website + AI phone answering + lead CRM + SMS/email follow-ups + online booking. $97 one-time setup, $197/mo. The product isn't software they configure — it's infrastructure they buy. Success looks like: a contractor who used to miss 7 calls a week now has every call answered, every lead followed up, and a calendar that fills itself.
+FlowDesk sells a done-for-you system: professional website + AI phone answering + lead CRM + SMS/email follow-ups + online booking. $39 one-time setup fee (all tiers), $97/mo Starter · $297/mo Professional · $497/mo Agency. The product isn't software they configure — it's infrastructure they buy. Success looks like: a contractor who used to miss 7 calls a week now has every call answered, every lead followed up, and a calendar that fills itself.
 
 ## Brand Personality
 
