@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
-import { requireInternalAuth } from "@/lib/auth";
+import { requireAgencyAuth } from "@/lib/auth";
 
 // ─── POST /api/claude ─────────────────────────────────────────────────────────
-// Proxies requests to Anthropic API so the key stays server-side
+// Proxies requests to Anthropic API so the key stays server-side.
+// Called from the dashboard browser client — uses session cookie auth.
 export async function POST(req) {
-  const authCheck = requireInternalAuth(req);
+  const authCheck = requireAgencyAuth(req);
   if (authCheck) return authCheck;
 
   const { prompt, system, messages, max_tokens = 1000 } = await req.json();

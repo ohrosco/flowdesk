@@ -312,7 +312,7 @@ function AiModal({lead,onClose}){
     };
     const res=await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt:prompts[ch]})}).catch(()=>null);
     if(res?.ok){const d=await res.json();setResult(d.text||"No response.")}
-    else setResult("Could not generate — check ANTHROPIC_API_KEY in your .env.local");
+    else setResult("Could not generate — make sure ANTHROPIC_API_KEY is set in your Vercel environment variables.");
     setLoading(false);
   }
 
