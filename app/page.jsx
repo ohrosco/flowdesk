@@ -224,9 +224,6 @@ body{background:${T.bg};color:${T.text};font-family:'IBM Plex Sans',sans-serif;o
 export default function Landing() {
   const [openFaq, setOpenFaq] = useState(null);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [checkoutLoading, setCheckoutLoading] = useState(null);
-  const [checkoutError, setCheckoutError] = useState("");
-
   const [quizStep, setQuizStep] = useState(0);
   const [quizAnswers, setQuizAnswers] = useState({});
   const [quizResult, setQuizResult] = useState(null);
@@ -409,11 +406,6 @@ export default function Landing() {
         <div className="section-tag">Simple Pricing</div>
         <h2 className="section-hd">$39 setup. Month-to-month after that.</h2>
         <p className="section-sub">Website build, AI phone system, CRM, booking, follow-ups — all included. One-time setup fee, then month-to-month. Cancel anytime.</p>
-        {checkoutError && (
-          <div style={{maxWidth:480,margin:"0 auto 24px",background:"rgba(224,90,90,.08)",border:"1px solid rgba(224,90,90,.25)",borderRadius:10,padding:"12px 16px",fontSize:"0.84rem",color:"#E05A5A",textAlign:"center"}}>
-            {checkoutError}. <a href="mailto:goflowdesk@proton.me" style={{color:"#E05A5A"}}>Email us to sign up</a>
-          </div>
-        )}
         <div className="pricing-grid">
           {PRICING.map((p,i) => (
             <div key={i} className={`p-card ${p.popular?"popular":""} ${quizResult===p.tier?"recommended":""}`}>
@@ -438,9 +430,8 @@ export default function Landing() {
               <button
                 className={`btn ${p.popular || quizResult===p.tier ? "btn-g":"btn-o"}`}
                 onClick={() => handleCheckout(p.tier)}
-                disabled={checkoutLoading !== null}
               >
-                {checkoutLoading === p.tier ? "Redirecting…" : p.cta}
+                {p.cta}
               </button>
             </div>
           ))}
