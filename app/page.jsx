@@ -259,29 +259,15 @@ export default function Landing() {
     setQuizResult(null);
   }
 
-  async function handleCheckout(tier) {
-    if (tier === "agency") {
-      window.location.href = "mailto:goflowdesk@proton.me?subject=Agency Plan Inquiry";
-      return;
-    }
-    setCheckoutLoading(tier);
-    setCheckoutError("");
-    try {
-      const res = await fetch("/api/stripe/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ priceTier: tier }),
-      });
-      const data = await res.json();
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        setCheckoutError(data.error || "Checkout unavailable. Please contact us to sign up.");
-      }
-    } catch {
-      setCheckoutError("Connection error. Please try again.");
-    }
-    setCheckoutLoading(null);
+  const STRIPE_LINKS = {
+    starter: "https://buy.stripe.com/6oU00b7l05ZU3WBfOR2sM00",
+    professional: "https://buy.stripe.com/3cIcMX7l0coidxb9qt2sM01",
+    agency: "https://buy.stripe.com/aFa4gr9t80FAdxbcCF2sM02",
+  };
+
+  function handleCheckout(tier) {
+    const url = STRIPE_LINKS[tier];
+    if (url) window.location.href = url;
   }
 
   return (
