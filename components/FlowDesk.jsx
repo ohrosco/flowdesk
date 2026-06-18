@@ -245,6 +245,28 @@ html,body{height:100%;background:${T.bg};font-family:-apple-system,BlinkMacSyste
 .ow-action-icon{font-size:1.2rem;width:36px;height:36px;background:${T.primaryGlow};border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .ow-action-title{font-size:0.84rem;font-weight:600;margin-bottom:1px}
 .ow-action-desc{font-size:0.72rem;color:${T.muted}}
+
+/* ─── MOBILE ─────────────────────────────────────────────────────────────── */
+.mob-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:180;animation:fi .2s ease}
+.mob-menu-btn{display:none;background:none;border:1px solid ${T.border};cursor:pointer;padding:6px 9px;color:${T.text};font-size:18px;line-height:1;border-radius:6px;font-family:inherit}
+.mob-menu-btn:hover{background:${T.bg}}
+.seq-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media(max-width:640px){.seq-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%);transition:transform .25s ease;z-index:200}
+  .sidebar.mob-open{transform:translateX(0);box-shadow:6px 0 24px rgba(0,0,0,.15)}
+  .app-main{margin-left:0}
+  .topbar{padding:12px 16px;gap:8px}
+  .topbar-left p{display:none}
+  .topbar-left h1{font-size:15px}
+  .main{padding:14px}
+  .mob-menu-btn{display:inline-flex;align-items:center;justify-content:center}
+  .stats{margin-bottom:16px}
+  .section-hd{font-size:14px;margin-bottom:12px}
+  .card{padding:16px}
+  .bc-hist th:nth-child(2),.bc-hist td:nth-child(2){display:none}
+  .bc-hist th:nth-child(5),.bc-hist td:nth-child(5){display:none}
+}
 `;
 
 const TIMES = ["8:00 AM","9:00 AM","10:00 AM","11:00 AM","12:00 PM","1:00 PM","2:00 PM","3:00 PM","4:00 PM","5:00 PM"];
@@ -468,7 +490,7 @@ function Dashboard({leads,appts,onTab}){
       </div>
       <div className="card">
         <div className="card-title">⚡ Follow-Up Sequence Overview</div>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
+        <div className="seq-grid">
           {SEQ.map((s,i)=>(
             <div key={i} className="card-sm" style={{borderColor:i===0?T.gold:T.border}}>
               <div style={{fontSize:"1.1rem",marginBottom:6}}>{s.icon}</div>
@@ -1973,6 +1995,7 @@ export default function FlowDesk(){
   const [aiLead,setAiLead]=useState(null);
   const [loadingData,setLoadingData]=useState(true);
   const [showOnboarding,setShowOnboarding]=useState(null);
+  const [sidebarOpen,setSidebarOpen]=useState(false);
   const tenant=process.env.NEXT_PUBLIC_BUSINESS_NAME||"FlowDesk";
 
   useEffect(()=>{
@@ -2062,7 +2085,8 @@ export default function FlowDesk(){
           <div className="app">
 
             {/* ── SIDEBAR ── */}
-            <div className="sidebar">
+            {sidebarOpen&&<div className="mob-overlay" onClick={()=>setSidebarOpen(false)}/>}
+            <div className={"sidebar"+(sidebarOpen?" mob-open":"")}>
               <div className="sb-logo">
                 <div className="sb-logo-icon">FD</div>
                 <div>
@@ -2075,7 +2099,7 @@ export default function FlowDesk(){
                   <div key={section.label}>
                     <div className="sb-section">{section.label}</div>
                     {section.items.map(t=>(
-                      <button key={t.id} className={"nav-btn"+(tab===t.id?" on":"")} onClick={()=>setTab(t.id)}>
+                      <button key={t.id} className={"nav-btn"+(tab===t.id?" on":"")} onClick={()=>{setTab(t.id);setSidebarOpen(false);}}>
                         <span className="nav-icon">{t.icon}</span>
                         {t.label}
                         {t.id==="leads"&&newLeadsCount>0&&<span className="nav-badge">{newLeadsCount}</span>}
@@ -2099,9 +2123,12 @@ export default function FlowDesk(){
             {/* ── MAIN ── */}
             <div className="app-main">
               <div className="topbar">
-                <div className="topbar-left">
-                  <h1>{meta.title}</h1>
-                  <p>{meta.sub}</p>
+                <div className="topbar-left" style={{display:"flex",alignItems:"center",gap:10}}>
+                  <button className="mob-menu-btn" onClick={()=>setSidebarOpen(o=>!o)}>☰</button>
+                  <div>
+                    <h1>{meta.title}</h1>
+                    <p>{meta.sub}</p>
+                  </div>
                 </div>
                 <div className="topbar-right">
                   {tab==="leads"&&<button className="btn btn-g btn-s" onClick={()=>document.dispatchEvent(new CustomEvent("fd:open-lead-modal"))}>+ Capture Lead</button>}
