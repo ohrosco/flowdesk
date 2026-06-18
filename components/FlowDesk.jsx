@@ -1,16 +1,22 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 
 // ─── THEME ────────────────────────────────────────────────────────────────────
-const T = {
+const LIGHT = {
   bg:"#F8FAFC", surface:"#FFFFFF", card:"#FFFFFF", border:"#E2E8F0",
   borderHover:"#CBD5E1", primary:"#2563EB", primaryDim:"#1D4ED8", primaryGlow:"#EFF6FF",
   text:"#0F172A", muted:"#64748B", red:"#DC2626", green:"#16A34A", blue:"#7C3AED",
-  // Legacy aliases used in non-CSS inline styles throughout the component
   gold:"#2563EB", goldDim:"#1D4ED8", goldGlow:"#EFF6FF",
 };
+const DARK = {
+  bg:"#0D1117", surface:"#161B22", card:"#1C2128", border:"#30363D",
+  borderHover:"#484F58", primary:"#58A6FF", primaryDim:"#388BFD", primaryGlow:"rgba(56,139,253,0.12)",
+  text:"#E6EDF3", muted:"#8B949E", red:"#FF7B72", green:"#3FB950", blue:"#D2A8FF",
+  gold:"#58A6FF", goldDim:"#388BFD", goldGlow:"rgba(56,139,253,0.12)",
+};
+let T = {...LIGHT};
 
-const CSS = `
+function makeCSS(){return `
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;background:${T.bg};font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:${T.text};font-size:14px}
 .app{display:flex;min-height:100vh;background:${T.bg}}
@@ -267,7 +273,7 @@ html,body{height:100%;background:${T.bg};font-family:-apple-system,BlinkMacSyste
   .bc-hist th:nth-child(2),.bc-hist td:nth-child(2){display:none}
   .bc-hist th:nth-child(5),.bc-hist td:nth-child(5){display:none}
 }
-`;
+`;}
 
 const TIMES = ["8:00 AM","9:00 AM","10:00 AM","11:00 AM","12:00 PM","1:00 PM","2:00 PM","3:00 PM","4:00 PM","5:00 PM"];
 const SEQ = [
@@ -1296,7 +1302,7 @@ function OnboardingWizard({onComplete,setActiveTab}){
 
   return(
     <div className="ow">
-      <style>{CSS}</style>
+      <style>{makeCSS()}</style>
       <div className="ow-hdr">
         <div className="logo"><Logo/><sub>Lead Engine</sub></div>
         {screen!=="welcome"&&screen!=="done"&&(
@@ -1571,12 +1577,12 @@ function ConversationsView(){
       <div className="section-hd">💬 SMS Inbox</div>
       <div className="inbox">
         <div className="thread-list">
-          {loadingThreads&&<div style={{padding:"20px",textAlign:"center",color:"#8A8470",fontSize:"0.82rem"}}><span className="spin">◌</span> Loading…</div>}
+          {loadingThreads&&<div style={{padding:"20px",textAlign:"center",color:T.muted,fontSize:"0.82rem"}}><span className="spin">◌</span> Loading…</div>}
           {!loadingThreads&&threads.length===0&&(
             <div style={{padding:"32px 16px",textAlign:"center",display:"flex",flexDirection:"column",gap:8,alignItems:"center"}}>
               <div style={{fontSize:"1.8rem"}}>📱</div>
-              <div style={{fontWeight:600,color:"#F0EAD6",fontSize:"0.86rem"}}>No conversations yet</div>
-              <div style={{fontSize:"0.78rem",color:"#8A8470",lineHeight:1.6,maxWidth:200}}>When a lead texts your Twilio number, their message will appear here automatically.</div>
+              <div style={{fontWeight:600,color:T.text,fontSize:"0.86rem"}}>No conversations yet</div>
+              <div style={{fontSize:"0.78rem",color:T.muted,lineHeight:1.6,maxWidth:200}}>When a lead texts your Twilio number, their message will appear here automatically.</div>
             </div>
           )}
           {threads.map(t=>(
@@ -1586,7 +1592,7 @@ function ConversationsView(){
                 {t.unread>0&&<span className="unread-dot"/>}
               </div>
               <div className="thread-preview">
-                {t.direction==="outbound"&&<span style={{color:"#8A8470"}}>You: </span>}
+                {t.direction==="outbound"&&<span style={{color:T.muted}}>You: </span>}
                 {t.lastMessage}
               </div>
               <div className="thread-time">{fmt(t.time)}</div>
@@ -1595,7 +1601,7 @@ function ConversationsView(){
         </div>
         <div className="msg-panel">
           {!activePhone&&(
-            <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",color:"#8A8470",fontSize:"0.85rem",flexDirection:"column",gap:8,padding:40}}>
+            <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",color:T.muted,fontSize:"0.85rem",flexDirection:"column",gap:8,padding:40}}>
               <div style={{fontSize:"2rem"}}>💬</div>
               Select a conversation to read and reply
             </div>
@@ -1606,12 +1612,12 @@ function ConversationsView(){
                 <div className="lav" style={{width:30,height:30,fontSize:"0.72rem"}}>{activePhone.slice(-4)}</div>
                 <div>
                   <div style={{fontWeight:600}}>{activePhone}</div>
-                  {activeThread&&activeThread.lead_id&&<div style={{fontSize:"0.7rem",color:"#8A8470"}}>Lead linked</div>}
+                  {activeThread&&activeThread.lead_id&&<div style={{fontSize:"0.7rem",color:T.muted}}>Lead linked</div>}
                 </div>
               </div>
               <div className="msg-body" ref={bodyRef}>
-                {loadingMsgs&&<div style={{textAlign:"center",color:"#8A8470",fontSize:"0.82rem",padding:"20px 0"}}><span className="spin">◌</span> Loading thread…</div>}
-                {!loadingMsgs&&messages.length===0&&<div style={{textAlign:"center",color:"#8A8470",fontSize:"0.82rem",padding:"20px 0"}}>No messages in this thread.</div>}
+                {loadingMsgs&&<div style={{textAlign:"center",color:T.muted,fontSize:"0.82rem",padding:"20px 0"}}><span className="spin">◌</span> Loading thread…</div>}
+                {!loadingMsgs&&messages.length===0&&<div style={{textAlign:"center",color:T.muted,fontSize:"0.82rem",padding:"20px 0"}}>No messages in this thread.</div>}
                 {messages.map((m,i)=>(
                   <div key={m.id||i} style={{display:"flex",flexDirection:"column",alignItems:m.direction==="outbound"?"flex-end":"flex-start"}}>
                     <div className={"bubble "+(m.direction==="inbound"?"in":"out")}>{m.body}</div>
@@ -1717,7 +1723,7 @@ function BroadcastView({leads}){
                   <select value={form.segment} onChange={e=>setForm(p=>({...p,segment:e.target.value}))}>
                     {SEGMENTS.map(s=><option key={s.value} value={s.value}>{s.label}</option>)}
                   </select>
-                  <div style={{fontSize:"0.72rem",color:"#8A8470",marginTop:4}}>
+                  <div style={{fontSize:"0.72rem",color:T.muted,marginTop:4}}>
                     ~{recipientEstimate} recipient{recipientEstimate!==1?"s":""}
                   </div>
                 </div>
@@ -1733,7 +1739,7 @@ function BroadcastView({leads}){
                   <div className={"char-count "+charClass}>{charCount}/160{charCount>160&&" — too long!"}</div>
                 </div>
                 <label style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer",fontSize:"0.84rem"}}>
-                  <input type="checkbox" checked={form.send_now} onChange={e=>setForm(p=>({...p,send_now:e.target.checked}))} style={{accentColor:"#F0B429",width:16,height:16}}/>
+                  <input type="checkbox" checked={form.send_now} onChange={e=>setForm(p=>({...p,send_now:e.target.checked}))} style={{accentColor:T.primary,width:16,height:16}}/>
                   Send immediately
                 </label>
                 <button type="submit" className="btn btn-g" disabled={sending||charCount>160}>
@@ -1746,12 +1752,12 @@ function BroadcastView({leads}){
         <div>
           <div className="card" style={{padding:"16px 0"}}>
             <div className="card-title" style={{padding:"0 18px",marginBottom:12}}>📊 Broadcast History</div>
-            {loading&&<div style={{padding:"20px",textAlign:"center",color:"#8A8470",fontSize:"0.82rem"}}><span className="spin">◌</span> Loading…</div>}
+            {loading&&<div style={{padding:"20px",textAlign:"center",color:T.muted,fontSize:"0.82rem"}}><span className="spin">◌</span> Loading…</div>}
             {!loading&&broadcasts.length===0&&(
               <div style={{padding:"32px 20px",textAlign:"center",display:"flex",flexDirection:"column",gap:8,alignItems:"center"}}>
                 <div style={{fontSize:"1.8rem"}}>📊</div>
-                <div style={{fontWeight:600,color:"#F0EAD6",fontSize:"0.86rem"}}>No broadcasts yet</div>
-                <div style={{fontSize:"0.78rem",color:"#8A8470",lineHeight:1.6,maxWidth:220}}>Send your first campaign using the composer on the left — history and delivery stats will appear here.</div>
+                <div style={{fontWeight:600,color:T.text,fontSize:"0.86rem"}}>No broadcasts yet</div>
+                <div style={{fontSize:"0.78rem",color:T.muted,lineHeight:1.6,maxWidth:220}}>Send your first campaign using the composer on the left — history and delivery stats will appear here.</div>
               </div>
             )}
             {!loading&&broadcasts.length>0&&(
@@ -1770,14 +1776,14 @@ function BroadcastView({leads}){
                     {broadcasts.map(b=>(
                       <tr key={b.id}>
                         <td style={{fontWeight:600}}>{b.name}</td>
-                        <td style={{color:"#8A8470",textTransform:"capitalize"}}>{b.segment}</td>
+                        <td style={{color:T.muted,textTransform:"capitalize"}}>{b.segment}</td>
                         <td>{b.sent_count||0}/{b.recipient_count||0}</td>
                         <td>
                           <span className={"badge "+(b.status==="sent"?"b-done":b.status==="sending"?"b-warm":"b-cold")}>
                             {b.status}
                           </span>
                         </td>
-                        <td style={{color:"#8A8470",fontSize:"0.76rem"}}>{fmtDate(b.sent_at||b.created_at)}</td>
+                        <td style={{color:T.muted,fontSize:"0.76rem"}}>{fmtDate(b.sent_at||b.created_at)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -1846,16 +1852,16 @@ function ReviewsView({leads}){
       <div className="section-hd">⭐ Review Requests</div>
       <div className="stats mb20">
         {[
-          {n:wonLeads.length,   l:"Won Clients",     c:"#5ABF8A"},
-          {n:requests.length,   l:"Requests Sent",   c:"#F0B429"},
-          {n:pendingWon.length, l:"Pending",          c:"#5A9FE0"},
+          {n:wonLeads.length,   l:"Won Clients",     c:T.green},
+          {n:requests.length,   l:"Requests Sent",   c:T.gold},
+          {n:pendingWon.length, l:"Pending",          c:T.blue},
         ].map((s,i)=>(
           <div key={i} className="stat" style={{"--c":s.c}}>
             <div className="stat-n">{s.n}</div>
             <div className="stat-l">{s.l}</div>
           </div>
         ))}
-        <div className="stat" style={{"--c":"#F0B429"}}>
+        <div className="stat" style={{"--c":T.gold}}>
           <button className="btn btn-g" style={{width:"100%",fontSize:"0.8rem"}} disabled={!!sending||pendingWon.length===0} onClick={()=>send("all","all")}>
             {sending==="all"?<><span className="spin">◌</span> Sending…</>:"⭐ Send to All Won ("+pendingWon.length+")"}
           </button>
@@ -1868,8 +1874,8 @@ function ReviewsView({leads}){
           {wonLeads.length===0&&(
             <div style={{padding:"32px 20px",textAlign:"center",display:"flex",flexDirection:"column",gap:8,alignItems:"center"}}>
               <div style={{fontSize:"1.8rem"}}>🏆</div>
-              <div style={{fontWeight:600,color:"#F0EAD6",fontSize:"0.86rem"}}>No won clients yet</div>
-              <div style={{fontSize:"0.78rem",color:"#8A8470",lineHeight:1.6,maxWidth:220}}>Move a lead to <strong style={{color:"#5ABF8A"}}>Won</strong> in the Sales Pipeline tab and they&apos;ll appear here, ready for a review request.</div>
+              <div style={{fontWeight:600,color:T.text,fontSize:"0.86rem"}}>No won clients yet</div>
+              <div style={{fontSize:"0.78rem",color:T.muted,lineHeight:1.6,maxWidth:220}}>Move a lead to <strong style={{color:T.green}}>Won</strong> in the Sales Pipeline tab and they&apos;ll appear here, ready for a review request.</div>
             </div>
           )}
           {wonLeads.map(l=>{
@@ -1879,7 +1885,7 @@ function ReviewsView({leads}){
                 <div className="lav">{ini(l.name)}</div>
                 <div style={{flex:1,minWidth:0}}>
                   <div style={{fontSize:"0.85rem",fontWeight:600}}>{l.name}</div>
-                  <div style={{fontSize:"0.74rem",color:"#8A8470"}}>{l.phone||"No phone"} · {l.service}</div>
+                  <div style={{fontSize:"0.74rem",color:T.muted}}>{l.phone||"No phone"} · {l.service}</div>
                 </div>
                 {alreadySent?(
                   <span className="badge b-done">✓ Sent</span>
@@ -1899,12 +1905,12 @@ function ReviewsView({leads}){
         </div>
         <div className="card" style={{padding:"16px 0"}}>
           <div className="card-title" style={{padding:"0 18px"}}>📬 Sent Requests</div>
-          {loading&&<div style={{padding:"20px",textAlign:"center",color:"#8A8470",fontSize:"0.82rem"}}><span className="spin">◌</span> Loading…</div>}
+          {loading&&<div style={{padding:"20px",textAlign:"center",color:T.muted,fontSize:"0.82rem"}}><span className="spin">◌</span> Loading…</div>}
           {!loading&&requests.length===0&&(
             <div style={{padding:"32px 20px",textAlign:"center",display:"flex",flexDirection:"column",gap:8,alignItems:"center"}}>
               <div style={{fontSize:"1.8rem"}}>📬</div>
-              <div style={{fontWeight:600,color:"#F0EAD6",fontSize:"0.86rem"}}>No requests sent yet</div>
-              <div style={{fontSize:"0.78rem",color:"#8A8470",lineHeight:1.6,maxWidth:220}}>Once you send a review request, it&apos;ll appear here with a timestamp and the lead&apos;s info.</div>
+              <div style={{fontWeight:600,color:T.text,fontSize:"0.86rem"}}>No requests sent yet</div>
+              <div style={{fontSize:"0.78rem",color:T.muted,lineHeight:1.6,maxWidth:220}}>Once you send a review request, it&apos;ll appear here with a timestamp and the lead&apos;s info.</div>
             </div>
           )}
           {requests.map(r=>(
@@ -1912,9 +1918,9 @@ function ReviewsView({leads}){
               <div className="lav" style={{width:30,height:30,fontSize:"0.7rem"}}>{ini(r.leads?.name||r.phone||"?")}</div>
               <div style={{flex:1,minWidth:0}}>
                 <div style={{fontSize:"0.84rem",fontWeight:600}}>{r.leads?.name||r.phone}</div>
-                <div style={{fontSize:"0.74rem",color:"#8A8470"}}>{r.phone} · {r.leads?.service||""}</div>
+                <div style={{fontSize:"0.74rem",color:T.muted}}>{r.phone} · {r.leads?.service||""}</div>
               </div>
-              <div style={{textAlign:"right",fontSize:"0.74rem",color:"#8A8470",flexShrink:0}}>
+              <div style={{textAlign:"right",fontSize:"0.74rem",color:T.muted,flexShrink:0}}>
                 <span className="badge b-done">Sent</span>
                 <div style={{marginTop:4}}>{fmtDate(r.sent_at||r.created_at)}</div>
               </div>
@@ -1996,6 +2002,10 @@ export default function FlowDesk(){
   const [loadingData,setLoadingData]=useState(true);
   const [showOnboarding,setShowOnboarding]=useState(null);
   const [sidebarOpen,setSidebarOpen]=useState(false);
+  const [darkMode,setDarkMode]=useState(()=>{try{return localStorage.getItem("fd_dark")==="1"}catch{return false}});
+  Object.assign(T, darkMode ? DARK : LIGHT);
+  const css=useMemo(()=>makeCSS(),[darkMode]);
+  useEffect(()=>{try{localStorage.setItem("fd_dark",darkMode?"1":"0")}catch{}},[darkMode]);
   const tenant=process.env.NEXT_PUBLIC_BUSINESS_NAME||"FlowDesk";
 
   useEffect(()=>{
@@ -2069,7 +2079,7 @@ export default function FlowDesk(){
 
   return(
     <>
-      <style>{CSS}</style>
+      <style>{css}</style>
       {showOnboarding===null&&(
         <div style={{display:"flex",alignItems:"center",justifyContent:"center",minHeight:"100vh",background:T.bg,flexDirection:"column",gap:14}}>
           <div style={{width:34,height:34,background:T.primary,borderRadius:8,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontWeight:800,fontSize:16}}>FD</div>
@@ -2133,6 +2143,7 @@ export default function FlowDesk(){
                 <div className="topbar-right">
                   {tab==="leads"&&<button className="btn btn-g btn-s" onClick={()=>document.dispatchEvent(new CustomEvent("fd:open-lead-modal"))}>+ Capture Lead</button>}
                   {tab==="sched"&&<button className="btn btn-g btn-s" onClick={()=>document.dispatchEvent(new CustomEvent("fd:open-appt-modal"))}>+ Book Appointment</button>}
+                  <button className="btn btn-o btn-s" title={darkMode?"Switch to light mode":"Switch to night mode"} style={{fontSize:15,padding:"5px 8px"}} onClick={()=>setDarkMode(d=>!d)}>{darkMode?"☀️":"🌙"}</button>
                 </div>
               </div>
               <div className="main">
